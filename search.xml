@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>2D平台跳跃笔记</title>
+    <url>/2024/10/21/2D-platform-jump/</url>
+    <content><![CDATA[<h4 id="第一部分：Input-System"><a href="#第一部分：Input-System" class="headerlink" title="第一部分：Input System"></a>第一部分：Input System</h4><p>Input System的使用可以大大简化输入操作相关的编程。目前我用到的部分中，它的功能相当于把键鼠、手柄等的输入整理归纳成”一个操作“，之后在脚本编写中只要提及这个操作就可以。此外，它的Action Maps功能允许在不同的界面（比如游戏界面和暂停界面）编写不同的操作，也十分方便清晰。<br>Input System需要通过Package Manager安装。安装之后，使用它的脚本需要<code>using UnityEngine.InputSystem;</code> 然而，此时vs可能报错。一个可能的解决方案：点击Edit -&gt; Preferences…然后点External Tools。勾选框Generate .csproj files for: Registry packages，然后单击Regenerate project files。</p>
+<h5 id="开始使用"><a href="#开始使用" class="headerlink" title="开始使用"></a>开始使用</h5><p>要开始使用Input System，在project view中的合适的文件夹（我放在Assets&#x2F;Settings）中右键Create→Input Actions。双击新建出的内容，弹出窗口。左边为Action Maps，中间为Actions，右边则是供我们录入输入信息的。<br>首先新建一个Action Map。<br>此处仅讲解我们这次要用到的上下左右和跳跃控制：<br>上下左右：＋号新建一个Action，删除默认的那个No binding。由于上下左右控制是一个二维向量信息，将Action Type改为”Value“，Control Type改为”Vector 2“。右边有一个带小三角形的＋号，点选”Add…Composite”，会自动生成一个含有上下左右的Binding。选中它（左边标签是蓝色），右边Composite Type为2D Vector，Mode为Digital，这样x与y只会在-1，0，1之间变化。<br>首先绑定WASD键：如绑定W和Up，就点选Up，在Path中选W[Keyboard]。也可以用Listen功能，这样按一下键盘就可以出来对应的按键。<br>接下来，我们仍需要绑定上下左右键。在同一个Action下建立一个新的同类型的Binding绑定不同的按键即可。<br>跳跃：较为简单，新建一个类型为Button的Action，选择最简单的Add Binding即可。可以添加多个Binding来绑定更多按键。</p>
+<h5 id="后续操作"><a href="#后续操作" class="headerlink" title="后续操作"></a>后续操作</h5><p>完成编辑后，记得上方Save Asset。勾选Inspector中的Generate C# Class，下面会出来文件路径、文件名等信息，按需编辑即可（namespace一般不用动）。<br>之后就会生成一个脚本。我的脚本名为PlayerInputActions，上面那些Action所属的Action Map名为GamePlay。打开脚本，发现看不懂，但不用管。以后在别的脚本中，可以通过以下代码获取操作信息：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PlayerInputActions playerInputActions;</span><br><span class="line">Vector2 axes =&gt; playerInputActions.Gameplay.Axes.ReadValue&lt;Vector2&gt;();</span><br><span class="line">public bool Jump =&gt; playerInputActions.Gameplay.Jump.WasPressedThisFrame();</span><br><span class="line">public bool StopJump =&gt; playerInputActions.Gameplay.Jump.WasReleasedThisFrame();</span><br><span class="line">private void Awake()</span><br><span class="line">&#123;</span><br><span class="line">    playerInputActions = new PlayerInputActions();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们往往会对这些最原始的信息进行一些处理，再拿给接下来要讲到的状态机系统中去使用。</p>
+<h3 id="第二部分：状态机系统的两个基类"><a href="#第二部分：状态机系统的两个基类" class="headerlink" title="第二部分：状态机系统的两个基类"></a>第二部分：状态机系统的两个基类</h3><p>实际上，在实现玩家操控的过程中我们做的是玩家自己的状态机系统，之后还会有敌人、机关等的状态机系统。但是，这些系统都将会建立在两个基类上。<br>这两个基类分别为：IState，作为所有状态的基类；StateMachine，作为所有状态机的基类。状态不必赘述，而此处的状态机就是负责状态更新、开关与切换等的一个类。<br>一个状态需要具备四个基本的方法：**进入时操作Enter()，退出时操作Exit()，逻辑更新操作LogicUpdate()，物理更新操作PhysicUpdate()**。在IState中，显然这些都为空，然而它的派生类必须具备这四个方法（即使里面是空的，因为状态机里会用到它们）。所以，IState在实现上实际上是一个接口。<br><em>接口：简而言之，接口里的东西，它的派生类必须实现。接口定义了所有类继承接口时应遵循的语法合同。接口定义了语法合同 “是什么”部分，派生类定义了语法合同 “怎么做” 部分。显然，接口是不可以实例化的。</em><br>IState接口如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public interface IState</span><br><span class="line">&#123;</span><br><span class="line">    void Enter();</span><br><span class="line">    void Exit();</span><br><span class="line">    void LogicUpdate();</span><br><span class="line">    void PhysicUpdate();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>StateMachine继承自MonoBehaviour。最最首先，它有一个当前状态<code>IState currentState;</code>。<br>最简单的是负责在Update()、FixedUpdate()中分别进行逻辑更新和物理更新（以防你不知道，物理相关操作都要在FixedUpdate中进行）。此外，它还负责开启某状态和切换某状态（区别在于有没有前一个状态），看起来像是这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public void SwitchOn(IState newState)</span><br><span class="line">&#123;</span><br><span class="line">	currentState = newState;</span><br><span class="line">	currentState.Enter();</span><br><span class="line">&#125;</span><br><span class="line">public void SwitchState(IState newState)</span><br><span class="line">&#123;</span><br><span class="line">	currentState.Exit();</span><br><span class="line">	SwitchOn(newState);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此外，为了方便管理多个状态，StateMachine中存储了一个字典“状态表”，实现稍后再说：<br><code>protected Dictionary&lt;System.Type, IState&gt; stateTable;</code><br><em>System.Type是Typeof()或GetType()的返回值类型。</em></p>
+<h3 id="第三部分：PlayerObject挂载的三个脚本"><a href="#第三部分：PlayerObject挂载的三个脚本" class="headerlink" title="第三部分：PlayerObject挂载的三个脚本"></a>第三部分：PlayerObject挂载的三个脚本</h3><h4 id="所有玩家状态的基类PlayerState（并不是挂载的脚本之一）"><a href="#所有玩家状态的基类PlayerState（并不是挂载的脚本之一）" class="headerlink" title="所有玩家状态的基类PlayerState（并不是挂载的脚本之一）"></a>所有玩家状态的基类PlayerState（并不是挂载的脚本之一）</h4><p>可以先思考一下玩家所具备的状态：Idle，Run，Jump，Fall，AirJump（二段跳）。每一个状态都将有一个自己的类和相应的脚本。但是，我们并不直接让这些类从IState接口派生，因为同为玩家的状态，它们会有一些共同的部分。最容易想到的，自然就是（稍后将要细说的）需要存储的玩家状态机PlayerStateMachine，以及输入系统、Animator等。总之，需要一个PlayerState作为所有玩家状态的基类。<br>这个类不仅继承自IState，还要继承自ScriptableObject。后续，将会对玩家的每一个状态都生成一个资产文件，大大节省我们的内存。（这边其实还没有完全理解。之后会在状态机里开一个数组，放入每一个状态的资源文件，或许只有ScriptableObject可以这么搞）<br>前面四个基础方法都不需要改动。以上这些共同的部分还需要进行初始化，所以需要一个Initialize()，长这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public void Initialize(Animator animator, PlayerController player,</span><br><span class="line">    PlayerInput input,PlayerStateMachine stateMachine)</span><br><span class="line">&#123;</span><br><span class="line">    this.animator = animator;</span><br><span class="line">    this.player = player;</span><br><span class="line">    this.input = input;</span><br><span class="line">    this.stateMachine = stateMachine;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>若还有其他部分，将在完善各个状态的过程中添加。</p>
+<h4 id="玩家状态机-PlayerStateMachine"><a href="#玩家状态机-PlayerStateMachine" class="headerlink" title="玩家状态机 PlayerStateMachine"></a>玩家状态机 PlayerStateMachine</h4><p>直接上代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class PlayerStateMachine : StateMachine</span><br><span class="line">&#123;</span><br><span class="line">    [SerializeField] PlayerState[] states;//序列化后便可以在Inspector中方便地放入资产文件</span><br><span class="line">    Animator animator;</span><br><span class="line">    PlayerController player;</span><br><span class="line">    PlayerInput input;</span><br><span class="line">    private void Awake()</span><br><span class="line">    &#123;</span><br><span class="line">        animator = GetComponentInChildren&lt;Animator&gt;();</span><br><span class="line">        player = GetComponent&lt;PlayerController&gt;();</span><br><span class="line">        input = GetComponent&lt;PlayerInput&gt;();</span><br><span class="line">        stateTable = new Dictionary&lt;System.Type, IState&gt;(states.Length);</span><br><span class="line">        foreach (var state in states) //更新每一个状态的信息</span><br><span class="line">        &#123;</span><br><span class="line">            state.Initialize(animator, player, input, this);</span><br><span class="line">            stateTable.Add(state.GetType(), state);//存入状态表</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    private void Start()</span><br><span class="line">    &#123;</span><br><span class="line">        SwitchOn(stateTable[typeof(Idle_PlayerState)]);//默认开始状态为Idle</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="玩家输入处理器PlayerInput"><a href="#玩家输入处理器PlayerInput" class="headerlink" title="玩家输入处理器PlayerInput"></a>玩家输入处理器PlayerInput</h4><p>对来自Input System的信息进行一些“翻译”。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class PlayerInput : MonoBehaviour</span><br><span class="line">&#123;</span><br><span class="line">    PlayerInputActions playerInputActions;</span><br><span class="line">    Vector2 axes =&gt; playerInputActions.Gameplay.Axes.ReadValue&lt;Vector2&gt;();</span><br><span class="line">    public bool Jump =&gt; playerInputActions.Gameplay.Jump.WasPressedThisFrame();</span><br><span class="line">    public bool StopJump =&gt; playerInputActions.Gameplay.Jump.WasReleasedThisFrame();</span><br><span class="line">    public bool Move =&gt; AxisX != 0f;</span><br><span class="line">    public float AxisX =&gt; axes.x;</span><br><span class="line">    </span><br><span class="line">    private void Awake()</span><br><span class="line">    &#123;</span><br><span class="line">        playerInputActions = new PlayerInputActions();</span><br><span class="line">    &#125;</span><br><span class="line">    public void EnableGameplayInputs()</span><br><span class="line">    &#123;</span><br><span class="line">        playerInputActions.Gameplay.Enable();//启用玩家控制Action Map（以后可能有UI等其他Action Map)</span><br><span class="line">        Cursor.lockState = CursorLockMode.Locked;//游戏中常见的锁定光标</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="玩家控制器PlayerController"><a href="#玩家控制器PlayerController" class="headerlink" title="玩家控制器PlayerController"></a>玩家控制器PlayerController</h4><p>封装一些控制玩家运动的指令，简化后续状态的编写。此外，也进行一些不属于状态机系统的控制。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class PlayerController : MonoBehaviour</span><br><span class="line">&#123;</span><br><span class="line">    PlayerInput input;</span><br><span class="line">    Rigidbody2D rb2D;</span><br><span class="line">    public float MoveSpeed =&gt; Mathf.Abs(rb2D.velocity.x);//lambda表达式</span><br><span class="line">    private void Awake()</span><br><span class="line">    &#123;</span><br><span class="line">        input = GetComponent&lt;PlayerInput&gt;();</span><br><span class="line">        rb2D = GetComponent&lt;Rigidbody2D&gt;();</span><br><span class="line">    &#125;</span><br><span class="line">    private void Start()</span><br><span class="line">    &#123;</span><br><span class="line">        input.EnableGameplayInputs();//启用玩家操控</span><br><span class="line">    &#125;</span><br><span class="line">    public void Move(float speed, float acceleration)</span><br><span class="line">    &#123;</span><br><span class="line">        if (input.Move)//根据移动方向翻转</span><br><span class="line">        &#123;</span><br><span class="line">            transform.localScale = new Vector3(input.AxisX * 6.25f, 6.25f, 1f);</span><br><span class="line">        &#125;</span><br><span class="line">        SetVelocityX(Mathf.MoveTowards(rb2D.velocity.x, speed * input.AxisX, acceleration * Time.deltaTime));</span><br><span class="line">    &#125;</span><br><span class="line">    public void SetVelocity(Vector2 velocity)</span><br><span class="line">    &#123;</span><br><span class="line">        rb2D.velocity = velocity;</span><br><span class="line">    &#125;</span><br><span class="line">    public void SetVelocityX(float velocityX)</span><br><span class="line">    &#123;</span><br><span class="line">        rb2D.velocity = new Vector2(velocityX, rb2D.velocity.y);</span><br><span class="line">    &#125;</span><br><span class="line">    public void SetVelocityY(float velocityY)</span><br><span class="line">    &#123;</span><br><span class="line">        rb2D.velocity = new Vector2(rb2D.velocity.x, velocityY);</span><br><span class="line">    &#125;</span><br><span class="line">    public void SetUseGravity(bool useGravity)</span><br><span class="line">    &#123;</span><br><span class="line">        rb2D.gravityScale = useGravity ? 1f : 0f;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="第四部分：状态编写范例（Idle和Run状态）"><a href="#第四部分：状态编写范例（Idle和Run状态）" class="headerlink" title="第四部分：状态编写范例（Idle和Run状态）"></a>第四部分：状态编写范例（Idle和Run状态）</h3><p>（懒了）作为状态编写的样例，之后其他的状态就不会细说了，不然就不是笔记而是教程了。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[CreateAssetMenu(menuName =&quot;Data/StateMachine/PlayerState/Idle&quot;,fileName = &quot;Idle_PlayerState&quot;)]</span><br><span class="line">//在project view右键create资产文件</span><br><span class="line">public class Idle_PlayerState : PlayerState</span><br><span class="line">&#123;</span><br><span class="line">    [SerializeField] float deceleration = 5f;</span><br><span class="line">    public override void Enter()</span><br><span class="line">    &#123;</span><br><span class="line">        base.Enter();</span><br><span class="line">    &#125;</span><br><span class="line">    public override void LogicUpdate()</span><br><span class="line">    &#123;</span><br><span class="line">        if(input.Move)</span><br><span class="line">        &#123;</span><br><span class="line">            stateMachine.SwitchState(typeof(Run_PlayerState));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    public override void PhysicUpdate()</span><br><span class="line">    &#123;</span><br><span class="line">        player.Move(0f, deceleration);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[CreateAssetMenu(menuName = &quot;Data/StateMachine/PlayerState/Run&quot;, fileName = &quot;Run_PlayerState&quot;)]</span><br><span class="line">public class Run_PlayerState : PlayerState</span><br><span class="line">&#123;</span><br><span class="line">    [SerializeField] float runSpeed = 3f;</span><br><span class="line">    [SerializeField] float acceleration = 5f;</span><br><span class="line">    public override void Enter()</span><br><span class="line">    &#123;</span><br><span class="line">        base.Enter();</span><br><span class="line">    &#125;</span><br><span class="line">    public override void LogicUpdate()</span><br><span class="line">    &#123;</span><br><span class="line">        if (!input.Move)</span><br><span class="line">        &#123;</span><br><span class="line">            stateMachine.SwitchState(typeof(Idle_PlayerState));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    public override void PhysicUpdate()</span><br><span class="line">    &#123;</span><br><span class="line">        player.Move(runSpeed, acceleration);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="第五部分：动画相关"><a href="#第五部分：动画相关" class="headerlink" title="第五部分：动画相关"></a>第五部分：动画相关</h3><p>动画操作在PlayerState类的Enter()里统一进行，使用下面这个语句：<br><code>animator.CrossFade(stateHash, transitionDuration);</code><br>其中，stateHash是Animator里状态的名字转换成的哈希值，可以通过函数Animator.StringToHash()获取。所以，和动画播放有关的语句就这些：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[SerializeField] string stateName;</span><br><span class="line">[SerializeField, Range(0f, 1f)] float transitionDuration = 0.1f;//可以使用滑块调整数据了</span><br><span class="line">...</span><br><span class="line">void OnEnable()</span><br><span class="line">&#123;</span><br><span class="line">    stateHash = Animator.StringToHash(stateName);</span><br><span class="line">&#125;</span><br><span class="line">public virtual void Enter()</span><br><span class="line">&#123;</span><br><span class="line">    animator.CrossFade(stateHash, transitionDuration);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>之后，需要手动在资产文件那边输入stateName。</p>
+<h3 id="第六部分：地面检测"><a href="#第六部分：地面检测" class="headerlink" title="第六部分：地面检测"></a>第六部分：地面检测</h3><p>本项目中地面检测的方法是在玩家脚底做一个很薄的矩形判定，我把这个功能放到玩家的一个新建子物体下（好像无关紧要）：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class PlayerGroundDetector : MonoBehaviour</span><br><span class="line">&#123;</span><br><span class="line">    [SerializeField] Vector2 detectionSize = new Vector2(0.1f, 0.0001f);</span><br><span class="line">    [SerializeField] float detectionAngle = 0f;//矩形旋转角度</span><br><span class="line">    [SerializeField] LayerMask groundLayer;//筛选groundLayer层的碰撞体</span><br><span class="line"></span><br><span class="line">    Collider2D[] colliders = new Collider2D[1];</span><br><span class="line">    public bool IsGrounded</span><br><span class="line">    &#123;</span><br><span class="line">        get//属性</span><br><span class="line">        &#123;</span><br><span class="line">            return Physics2D.OverlapBoxNonAlloc(transform.position, detectionSize,</span><br><span class="line">                detectionAngle, colliders, groundLayer) != 0;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;//NonAlloc：不分配内存的检测，若频繁进行推荐使用，会把碰撞体存进colliders，返回的是碰撞体的数量</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>判断出玩家是否在地面上后，就可以进行Jump、Fall等状态的切换。矩形的宽度最好和玩家碰撞体的宽度一样，不然会出现以Fall的状态卡在空中的bug。<br><em>属性：属性由两个访问器组成：<code>get</code> 访问器和 <code>set</code> 访问器。<code>get</code> 访问器用于返回属性的值，<code>set</code> 访问器用于设置属性的值。属性可以是只读的（只有 <code>get</code> 访问器）、只写的（只有 <code>set</code> 访问器）或读写的（同时有 <code>get</code> 和 <code>set</code> 访问器）。</em><br>有一些有落地动画的项目可能会采取更高的矩形判断或者球体判断以提前播放动画。</p>
+<h3 id="第七部分：优化操作体验"><a href="#第七部分：优化操作体验" class="headerlink" title="第七部分：优化操作体验"></a>第七部分：优化操作体验</h3><h4 id="土狼时间"><a href="#土狼时间" class="headerlink" title="土狼时间"></a>土狼时间</h4><p>在玩家跑着离开平台的一定时间内暂时不下落，放宽输入的判定。<br>把土狼时间状态写成一个新的状态，名为CoyoteTime。若玩家处于Run状态且不在地上，进入CoyoteTime。<br>进入CoyoteTime后，关闭重力；在PlayerState中添加一个float stateStartTime，用以检测是否过了时间，若超出时间则进入Fall状态（退出时开启重力）。</p>
+<h4 id="跳跃输入缓冲"><a href="#跳跃输入缓冲" class="headerlink" title="跳跃输入缓冲"></a>跳跃输入缓冲</h4><p>防止玩家在还没落地时就按下跳跃导致没有跳跃成功，产生挫败感，本质上也是放宽判定。若玩家进入Fall状态后且不能触发AirJump，再次按下跳跃键时使用bool HasJumpInputBuffer保留一段时间的输入缓冲。若掉到地面进入Idle状态后有输入缓冲，则立刻跳起。<br>输入缓冲属于输入处理器，所以放在PlayerInput里面定义。然后是理清逻辑：</p>
+<ul>
+<li>进入Jump时，清除输入缓冲。</li>
+<li>Fall且不能AirJump时，进行输入缓冲。</li>
+<li>Idle且有输入缓冲时，跳。</li>
+<li>在PlayerInput里弄一个协程JumpInputBufferCoroutine()，这个协程会进行输入缓冲后等待给定时间，然后清除输入缓冲。</li>
+<li>为了避免同时有多个协程，封装一个新的方法如下：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public void SetJumpInputBufferTimer()</span><br><span class="line">&#123;</span><br><span class="line">    StopCoroutine(nameof(JumpInputBufferCoroutine));</span><br><span class="line">    StartCoroutine(nameof(JumpInputBufferCoroutine));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>用调用这个方法代替前面说的“进行输入缓冲”操作。</p>
+<ul>
+<li>另外，本项目为了实现小跳大跳功能，在玩家松开跳跃键时会立刻进入Fall，所以松开跳跃键时自然也应该清除输入缓冲。采用委托的写法：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">private void OnEnable()</span><br><span class="line">&#123;</span><br><span class="line">    playerInputActions.Gameplay.Jump.canceled += delegate</span><br><span class="line">    &#123;</span><br><span class="line">        HasJumpInputBuffer = false;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<em><code>+= delegate &#123; ... &#125;</code> 语法用于将一个匿名方法（delegate）添加到 <code>canceled</code> 事件的事件处理程序列表中。这段代码的作用是在脚本启用时（即 <code>OnEnable</code> 方法调用时），将一个匿名方法注册到 <code>playerInputActions.Gameplay.Jump.canceled</code> 事件。当跳跃动作取消时（例如，玩家松开跳跃键），该匿名方法会被调用，从而将 <code>HasJumpInputBuffer</code> 设置为 <code>false</code>。</em></li>
+</ul>
+<h3 id="第八部分：视差效果-无限循环背景"><a href="#第八部分：视差效果-无限循环背景" class="headerlink" title="第八部分：视差效果+无限循环背景"></a>第八部分：视差效果+无限循环背景</h3><p>无限循环背景：开了个数组存背景图，检测到相机边越界就瞬移然后轮换数组位置。<br>视差效果：给背景图存一个父物体，直接控制父物体，移动量是相机移动量的一半。<br>比较大的坑点在于父物体的坐标会对子物体造成影响。要把坐标和scale都调好。<br>相机真正宽度的计算法：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">var camera = mainCameraObject.GetComponent&lt;Camera&gt;();</span><br><span class="line">float orthographicSize = camera.orthographicSize;</span><br><span class="line">float aspectRatio = Screen.width * 1.0f / Screen.height; </span><br><span class="line">float cameraHeight = orthographicSize * 2;</span><br><span class="line">mapWidth = fbgs[0].GetComponent&lt;SpriteRenderer&gt;().sprite.bounds.size.x</span><br><span class="line">    *fbgs[0].transform.localScale.x;</span><br><span class="line">cameraWidth = cameraHeight * aspectRatio;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Unity</category>
+      </categories>
+      <tags>
+        <tag>Unity</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>面向我自己的QFramework快速入门（1）</title>
+    <url>/2024/10/21/qframework-manual/</url>
+    <content><![CDATA[<h4 id="一些废话"><a href="#一些废话" class="headerlink" title="一些废话"></a>一些废话</h4><p>QFramework有作者本人编写的教程。此前经常阻止我写笔记的一个原因是我学习东西的途径绝大多数时候也是网络教程，且相比视频更偏好文档，那么有教程的存在我的笔记又有什么意义呢？不过阅读了这篇教程（并且经历了一个昏昏欲睡十分痛苦的下午）后，我感觉这篇教程虽然使用了一个案例覆盖了基本全部元素，但并没有特别详细，也没有让我体会到QFramework这些元素的设计特色与本质，而这是我比较喜欢在最开始就了解到的。此外也有一些前置知识我自己不太了解。因此我打算参考原教程给自己重新整理一个教程。</p>
+<h4 id="QFramework的基础：MVC架构"><a href="#QFramework的基础：MVC架构" class="headerlink" title="QFramework的基础：MVC架构"></a>QFramework的基础：MVC架构</h4><p>MVC架构将应用程序分为了<strong>Model、View和Controller</strong>三部分。Model简单来说就是管数据和与紧密相关的一些逻辑的；View是用户可交互的内容，不负责处理逻辑，只负责根据Model展示内容和接收用户的输入；Controller负责处理用户的输入，并引起Model和View的一系列改变。</p>
+<p>在这里可能比较难以区分Model和Controller各自负责的逻辑部分，但介绍了Controller负责的两部分逻辑后这一点可能会更加明白：</p>
+<ul>
+<li><p>交互逻辑：根据用户的输入对Model进行操作；</p>
+</li>
+<li><p>表现逻辑：根据Model对View进行操作。</p>
+</li>
+</ul>
+<p>而其他如Model自身的一些处理就是Model自己负责的。</p>
+<p>如教程里举的这个例子，一个简单的点击计数器：</p>
+<p><img  
+                       lazyload
+                       alt="image"
+                       data-src="https://file.liangxiegame.com/902ef543-64b1-45ad-ae45-ea180ebec133.png"
+                        alt="img"
+                 ></p>
+<p>Model包含一个存储当前数值的整型变量；View包含两个按钮和一个数字文本；Controller则负责监听按钮被按下的输入，并且完成两个逻辑：</p>
+<ul>
+<li><p>在按钮被点击后，改变数值（交互逻辑）</p>
+</li>
+<li><p>在数值改变后，改变数字文本（表现逻辑）</p>
+</li>
+</ul>
+<p>暂时不引入QFramework，我们用脚本实现这一系列内容：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.UI;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">QFramework.Example</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// Controller</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CounterAppController</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// View</span></span><br><span class="line">        <span class="keyword">private</span> Button mBtnAdd;</span><br><span class="line">        <span class="keyword">private</span> Button mBtnSub;</span><br><span class="line">        <span class="keyword">private</span> Text mCountText;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Model</span></span><br><span class="line">        <span class="keyword">private</span> <span class="built_in">int</span> mCount = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// View 组件获取</span></span><br><span class="line">            mBtnAdd = transform.Find(<span class="string">&quot;BtnAdd&quot;</span>).GetComponent&lt;Button&gt;();</span><br><span class="line">            mBtnSub = transform.Find(<span class="string">&quot;BtnSub&quot;</span>).GetComponent&lt;Button&gt;();</span><br><span class="line">            mCountText = transform.Find(<span class="string">&quot;CountText&quot;</span>).GetComponent&lt;Text&gt;();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 监听输入</span></span><br><span class="line">            mBtnAdd.onClick.AddListener(() =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// 交互逻辑</span></span><br><span class="line">                mCount++;</span><br><span class="line">                <span class="comment">// 表现逻辑</span></span><br><span class="line">                UpdateView();        </span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            mBtnSub.onClick.AddListener(() =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// 交互逻辑</span></span><br><span class="line">                mCount--;</span><br><span class="line">                <span class="comment">// 表现逻辑</span></span><br><span class="line">                UpdateView();</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            UpdateView();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">UpdateView</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            mCountText.text = mCount.ToString();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这其中比较容易引起疑惑的是<code>AddListener(...)</code>那一部分。这就需要引入<strong>回调函数</strong>（Callback Function）的概念：简单地说，就是作为参数传给另一个函数，并且在满足特定条件的时候会被自动调用的函数。在QFramework的编写中会经常用到回调函数，尤其是用Lambda表达式编写的回调函数，所以如果之前不太习惯这种风格，那么需要注意。</p>
+<h4 id="QFramework的Model"><a href="#QFramework的Model" class="headerlink" title="QFramework的Model"></a>QFramework的Model</h4><p>不难发现在上面这段代码中，Model只属于<code>CounterAppController</code>，不便于全局共享。若想让它变成共享的，可以将其变成静态变量或单例；但QFramework提供了一个更美的方案。</p>
+<p>首先我们引入一个继承自<code>AbstractModel</code>类的具体类来存储这个整型数值，这个类是QFramework提供给所有Model的基类：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CounterAppModel</span> : <span class="title">AbstractModel</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">int</span> Count;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnInit</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            Count = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后，我们引入一个继承自<code>Architecture</code>的整体架构类，并且在里面注册好需要的所有Model、System和Utility（后面会讲）等：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CounterApp</span> : <span class="title">Architecture</span>&lt;<span class="title">CounterApp</span>&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Init</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 注册 Model</span></span><br><span class="line">            <span class="keyword">this</span>.RegisterModel(<span class="keyword">new</span> CounterAppModel());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个<code>Architecture</code>类提供 MVC、分层、模块管理等多种功能，其中一个体现便是Model等一经注册，就可以在任何地方访问了，如Controller。改后完整代码如下：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.UI;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">QFramework.Example</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1. 定义一个 Model 对象</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CounterAppModel</span> : <span class="title">AbstractModel</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">int</span> Count;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnInit</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            Count = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2.定义一个架构（提供 MVC、分层、模块管理等）</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CounterApp</span> : <span class="title">Architecture</span>&lt;<span class="title">CounterApp</span>&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Init</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 注册 Model</span></span><br><span class="line">            <span class="keyword">this</span>.RegisterModel(<span class="keyword">new</span> CounterAppModel());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Controller</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CounterAppController</span> : <span class="title">MonoBehaviour</span> , <span class="title">IController</span> </span><br><span class="line">    <span class="comment">/* 3.实现 IController 接口 */</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// View</span></span><br><span class="line">        <span class="keyword">private</span> Button mBtnAdd;</span><br><span class="line">        <span class="keyword">private</span> Button mBtnSub;</span><br><span class="line">        <span class="keyword">private</span> Text mCountText;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. Model</span></span><br><span class="line">        <span class="keyword">private</span> CounterAppModel mModel;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 5. 获取模型</span></span><br><span class="line">            mModel = <span class="keyword">this</span>.GetModel&lt;CounterAppModel&gt;();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// View 组件获取</span></span><br><span class="line">            mBtnAdd = transform.Find(<span class="string">&quot;BtnAdd&quot;</span>).GetComponent&lt;Button&gt;();</span><br><span class="line">            mBtnSub = transform.Find(<span class="string">&quot;BtnSub&quot;</span>).GetComponent&lt;Button&gt;();</span><br><span class="line">            mCountText = transform.Find(<span class="string">&quot;CountText&quot;</span>).GetComponent&lt;Text&gt;();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 监听输入</span></span><br><span class="line">            mBtnAdd.onClick.AddListener(() =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// 6. 交互逻辑</span></span><br><span class="line">                mModel.Count++;</span><br><span class="line">                <span class="comment">// 表现逻辑</span></span><br><span class="line">                UpdateView();        </span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            mBtnSub.onClick.AddListener(() =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// 7. 交互逻辑</span></span><br><span class="line">                mModel.Count--;</span><br><span class="line">                <span class="comment">// 表现逻辑</span></span><br><span class="line">                UpdateView();</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            UpdateView();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">UpdateView</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            mCountText.text = mModel.Count.ToString();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3.指定架构</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> IArchitecture <span class="title">GetArchitecture</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> CounterApp.Interface;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnDestroy</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 8. 将 Model 设置为空</span></span><br><span class="line">            mModel = <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中有几个疑问点，一一解答：</p>
+<h5 id="1-IController"><a href="#1-IController" class="headerlink" title="1.IController"></a>1.IController</h5><p>我们发现<code>CounterAppController</code>类继承多了一个<code>IController</code>，而它以I开头，说明它是一个接口。和C++不同，C#只支持同时继承一个类，但可以同时继承（或者更应该说实现）多个接口。这里<strong>类继承</strong>是一种“<strong>是</strong>（is-a）”的关系，<strong>接口实现</strong> 则是一种“<strong>能做</strong>（can-do）”的关系。</p>
+<blockquote>
+<p>*类声明关键字<code>Interface</code>*：表明声明一个接口。接口不能被直接实例化；继承自接口的类必须实现接口内的所有方法。</p>
+</blockquote>
+<p><code>IController</code>是QFramework提供的controller接口，不过它并没有任何方法要实现。</p>
+<h5 id="2-为什么this-GetModel-可以获取Model"><a href="#2-为什么this-GetModel-可以获取Model" class="headerlink" title="2.为什么this.GetModel&lt;&gt;()可以获取Model"></a>2.为什么this.GetModel&lt;&gt;()可以获取Model</h5><p>你可以认为这是一个类似Unity的<code>GetComponent</code>功能，它的作用就是在<em>它所属的架构</em>（所以有个this）中寻找一个后面填入的类型的Model。而后面的这个函数就是为了配合实现这个功能：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> IArchitecture <span class="title">GetArchitecture</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> CounterApp.Interface;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>所谓“指定架构”就是让<code>GetArchitecture</code>函数可以返回它所在的架构。这里我们可以发现，所有的东西都必须依附在一个架构上，只不过有一些是用<code>Register</code>，Controller（由于是最上层的东西）则需要自己来指定。<code>Interface</code>可以视作返回<code>CounterApp</code>本身。至于具体如何配合，我们可以认为是这样的流程：</p>
+<blockquote>
+<p>调用<code>this.GetModel</code>→调用<code>GetArchitecture()</code>→调用架构中的<code>GetModel</code></p>
+</blockquote>
+<p>然而深挖源代码后我发现里面有些对我来说的新知识，所以我打算在下面的折叠里详细介绍：</p>
+<details><summary>详细介绍</summary>
+
+<p>首先，<code>IController</code>继承自一系列其他的接口，包括但不限于<code>IBelongToArchitecture, ICanGetSystem, ICanGetModel, ICanGetUtility</code>等。而<code>GetModel</code>这个方法，是以<strong>扩展方法</strong>的形式实现的：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">public static class CanGetModelExtension</span><br><span class="line">&#123;</span><br><span class="line">    public static T GetModel(this ICanGetModel self) where T : class, IModel =&gt;</span><br><span class="line">        self.GetArchitecture().GetModel();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>· <code>CanGetModelExtension</code>是专门用于定义这个扩展方法的静态类，这是因为C#中扩展方法必须定义在静态类中。<br>· <code>this ICanGetModel self</code>：扩展方法的第一个参数表示这个方法是针对 <code>ICanGetModel</code>类型的对象进行扩展的，<code>self</code>是方法的调用者在这个方法中的变量名。这意味着，任何实现了<code>ICanGetModel</code>接口的对象都可以调用这个扩展方法，如同它是类本身的方法一样。扩展方法还可以有第二个第三个等更多参数，它们的性质就和普通的参数一样了。<br>· <code>where T : class, IModel</code>是一个<strong>泛型约束</strong>，它指定了T必须是一个引用类型（<code>class</code>）（与“值类型”相对），并且必须实现<code>IModel</code>接口。这里T是一个Model的类，而QFramework也有一个给Model的接口IModel，这么做就可以理解了。  </p>
+<p>以上这些足够解释，不过我发现泛型约束还出现在另外一个地方。首先，<code>Architecture</code>也有一个接口<code>IArchitecture</code>,而<code>Architecture</code>实际上是一个继承自这个接口的抽象类，而这个抽象类的声明第一行是这样的：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">public abstract class Architecture : IArchitecture where T : Architecture, new()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这也是个泛型约束。首先，<code>Architecture&lt;T&gt;</code>表明T本身必须是一个继承了<code>Architecture</code>的类。这种模式被称为递归泛型。<br><code>new()</code>则要求T类型必须有一个无参构造函数（即T可以通过<code>new T()</code>创建）。<br>不难发现<code>CounterApp</code>符合这个条件。  </p>
+<p>值得一提的是，<code>CounterApp.Interface</code>实际上是在<code>Architecture&lt;T&gt;</code>中这么干的：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"> protected static T mArchitecture;</span><br><span class="line"> public static IArchitecture Interface</span><br><span class="line">&#123;</span><br><span class="line">    get</span><br><span class="line">    &#123;</span><br><span class="line">        if (mArchitecture == null) MakeSureArchitecture();</span><br><span class="line">        return mArchitecture;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>所以返回的东西实际上只有<code>IArchitecture</code>的性质，也就是一个接口。</p>
+</details>
+
+<h4 id="Command"><a href="#Command" class="headerlink" title="Command"></a>Command</h4><p>Command是用来简化Controller中的交互逻辑的。</p>
+<p>可以把它直接看成一个更规范整洁的、经常被使用所以需要整合的函数或者方法。比如计数器中的Command可以像是这样：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">IncreaseCountCommand</span> : <span class="title">AbstractCommand</span></span><br><span class="line">   &#123;</span><br><span class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnExecute</span>()</span></span><br><span class="line">       &#123;</span><br><span class="line">           <span class="keyword">this</span>.GetModel&lt;CounterAppModel&gt;().Count++;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">DecreaseCountCommand</span> : <span class="title">AbstractCommand</span></span><br><span class="line">   &#123;</span><br><span class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnExecute</span>()</span></span><br><span class="line">       &#123;</span><br><span class="line">           <span class="keyword">this</span>.GetModel&lt;CounterAppModel&gt;().Count--;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用则像：<code> this.SendCommand&lt;DecreaseCountCommand&gt;();</code> 它也可以在许多地方调用。<em>如果你读过详细介绍，我可以告诉你它也是一个扩展方法。</em></p>
+<p>Command也可以在别处复用，当然还有其他的一些性质。实际上，你肯定有过把经常复用的代码整合到一个函数中的经验，但是Command是将所有的这些函数加上了“是一个Command”这样的性质。一来再乱也乱不出Command类，二来可以通过这个共同点实现更多Command的独特功能。</p>
+<h4 id="Event"><a href="#Event" class="headerlink" title="Event"></a>Event</h4><p>Event是用来简化Controller中的表现逻辑的。</p>
+<p>我个人认为Event非常像Qt的signal和slot（如果你并不了解，不用在意这句话，但如果你了解则可以帮助理解）。非常明显的一点在于，Event的声明只需要一个类型，且为了让garbage collection最少，往往使用结构体：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">struct</span> CountChangeEvent</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样来执行一个事件，非常像发射signal：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">this</span>.SendEvent&lt;CountChangeEvent&gt;();</span><br></pre></td></tr></table></figure>
+
+<p>在Controller（或者其他地方）中，可以完善具体的Event内容：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">this</span>.RegisterEvent&lt;CountChangeEvent&gt;(e =&gt;</span><br><span class="line">&#123;</span><br><span class="line">	UpdateView();</span><br><span class="line">&#125;).UnRegisterWhenGameObjectDestroyed(gameObject);</span><br></pre></td></tr></table></figure>
+
+<p>这里传入的也是一个有参数e的回调函数（我们也经常写Lambda表达式形式的slot函数，不是吗？），不过这个参数没有被使用。当gameObject被销毁后，这个Event内容便会被清除。</p>
+<p><em>是的，<code>SendEvent</code>和<code>RegisterEvent</code>都是扩展方法</em>。</p>
+<hr>
+<p>在这里我们这么做的初衷是什么？说回简化表现逻辑的事——在计数器的例子中，我们希望Model每次被改变就更新显示，那么我们就可以手动定义更新显示事件（上面已经有了）并且在修改Model后执行：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">IncreaseCountCommand</span> : <span class="title">AbstractCommand</span> </span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnExecute</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">this</span>.GetModel&lt;CounterAppModel&gt;().Count++;</span><br><span class="line">        <span class="keyword">this</span>.SendEvent&lt;CountChangeEvent&gt;(); <span class="comment">// ++</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">DecreaseCountCommand</span> : <span class="title">AbstractCommand</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnExecute</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">this</span>.GetModel&lt;CounterAppModel&gt;().Count--;</span><br><span class="line">        <span class="keyword">this</span>.SendEvent&lt;CountChangeEvent&gt;(); <span class="comment">// ++</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，我们不再需要手动调用表现逻辑，而只需要在执行交互逻辑的Command里紧接着发送事件。而Controller原本表现逻辑的部分只需要把事件订阅好就可以了。<strong>绝大多数情况下，Command里内容执行完后必须发送事件，除非View不用更新！</strong></p>
+<p><em>不过我个人认为，Event这个设计更吸引我的点是它可以进行架构内的通讯。实际上我们在很多地方都可以响应一个<code>SendEvent</code>，不仅限于Command里面。</em></p>
+<blockquote>
+<p>Command和Event是基于<strong>CQRS</strong>（Command Query Responsibility Segregation）原则的。什么违反了这个原则呢？若一个函数同时进行了写入（改动）和读取（返回）功能，则它违反了这个原则，比如<code>stack</code>或者<code>queue</code>的<code>pop()</code>等。</p>
+</blockquote>
+<h4 id="Utility"><a href="#Utility" class="headerlink" title="Utility"></a>Utility</h4><p>Utility没有自带的功能。它用来写一些我们自定义的基础设施，比如存储方法、序列化方法、网络连接方法、蓝牙方法、SDK、框架继承等。以这个计数器中的存储方法为例，我们可以定义存储的Utility，这样就可以在需要修改的时候只修改Utility中的内容：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Storage</span> : <span class="title">IUtility</span></span><br><span class="line">   &#123;</span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SaveInt</span>(<span class="params"><span class="built_in">string</span> key, <span class="built_in">int</span> <span class="keyword">value</span></span>)</span></span><br><span class="line">       &#123;</span><br><span class="line">           PlayerPrefs.SetInt(key,<span class="keyword">value</span>);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="built_in">int</span> <span class="title">LoadInt</span>(<span class="params"><span class="built_in">string</span> key, <span class="built_in">int</span> defaultValue = <span class="number">0</span></span>)</span></span><br><span class="line">       &#123;</span><br><span class="line">           <span class="keyword">return</span> PlayerPrefs.GetInt(key, defaultValue);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CounterApp</span> : <span class="title">Architecture</span>&lt;<span class="title">CounterApp</span>&gt;</span><br><span class="line">   &#123;</span><br><span class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Init</span>()</span></span><br><span class="line">       &#123;</span><br><span class="line">           <span class="comment">// 注册 Model</span></span><br><span class="line">           <span class="keyword">this</span>.RegisterModel(<span class="keyword">new</span> CounterAppModel());</span><br><span class="line"></span><br><span class="line">           <span class="comment">// 注册存储工具的对象  !!!!</span></span><br><span class="line">           <span class="keyword">this</span>.RegisterUtility(<span class="keyword">new</span> Storage());</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用Utility be like：<code>this.GetUtility&lt;Storage&gt;().SaveInt(nameof(Count), Count);</code><em>是的，<code>GetUtility</code>也是……</em></p>
+<h4 id="System"><a href="#System" class="headerlink" title="System"></a>System</h4><p>System用于集成一些事件（如相似性质的规则触发的事件），帮助Controller承担一部分逻辑，尤其是在多个表现层共享的逻辑，比如计时系统、商城系统、成就系统等。</p>
+<p>比如计数器的成就系统：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AchievementSystem</span> : <span class="title">AbstractSystem</span> <span class="comment">// +</span></span><br><span class="line">   &#123;</span><br><span class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnInit</span>()</span></span><br><span class="line">       &#123;</span><br><span class="line">           <span class="keyword">var</span> model = <span class="keyword">this</span>.GetModel&lt;CounterAppModel&gt;();</span><br><span class="line"></span><br><span class="line">           <span class="keyword">this</span>.RegisterEvent&lt;CountChangeEvent&gt;(e =&gt;</span><br><span class="line">           &#123;</span><br><span class="line">               <span class="keyword">if</span> (model.Count == <span class="number">10</span>)</span><br><span class="line">               &#123;</span><br><span class="line">                   Debug.Log(<span class="string">&quot;触发 点击达人 成就&quot;</span>);</span><br><span class="line">               &#125;</span><br><span class="line">               <span class="keyword">else</span> <span class="keyword">if</span> (model.Count == <span class="number">20</span>)</span><br><span class="line">               &#123;</span><br><span class="line">                   Debug.Log(<span class="string">&quot;触发 点击专家 成就&quot;</span>);</span><br><span class="line">               &#125; <span class="keyword">else</span> <span class="keyword">if</span> (model.Count == <span class="number">-10</span>)</span><br><span class="line">               &#123;</span><br><span class="line">                   Debug.Log(<span class="string">&quot;触发 点击菜鸟 成就&quot;</span>);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>System同样需要注册：<code>this.RegisterSystem(new AchievementSystem());</code></p>
+<h4 id="Query"><a href="#Query" class="headerlink" title="Query"></a>Query</h4><p>Query是CQRS原则的另一块拼图。它可以集成查找操作，和Command用法几乎一样，把它们分为两种类型大抵是为了将这两种操作分类。</p>
+<p>Query继承自<code>AbstractQuery</code>，不过需要写明查询结果类型：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SchoolAllPersonCountQuery</span> : <span class="title">AbstractQuery</span>&lt;<span class="title">int</span>&gt;</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="built_in">int</span> <span class="title">OnDo</span>()</span></span><br><span class="line">           &#123;</span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">this</span>.GetModel&lt;StudentModel&gt;().StudentNames.Count +</span><br><span class="line">                      <span class="keyword">this</span>.GetModel&lt;TeacherModel&gt;().TeacherNames.Count;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这样使用：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (GUILayout.Button(<span class="string">&quot;查询学校总人数&quot;</span>))</span><br><span class="line">&#123;</span><br><span class="line">	mAllPersonCount = <span class="keyword">this</span>.SendQuery(<span class="keyword">new</span> SchoolAllPersonCountQuery());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="架构的规则"><a href="#架构的规则" class="headerlink" title="架构的规则"></a>架构的规则</h4><p>虽然上面尤其提到了在许多地方都可以使用扩展方法，但具体哪里可以使用肯定也是有明确的规定的。只要在源码里查看对应的接口所继承的接口就可以了，比如：</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IController</span> : <span class="title">IBelongToArchitecture</span>, <span class="title">ICanSendCommand</span>, <span class="title">ICanGetSystem</span>, <span class="title">ICanGetModel</span>,<span class="title">ICanRegisterEvent</span>, <span class="title">ICanSendQuery</span></span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>意味着它必须指定所属架构；可以发送Command和Query；可以获取System和Model；可以监听Event。</p>
+<p>其他的可以自己去查看源码，但为了保持这篇教程的完整性，转载一些原教程中的规则：</p>
+<hr>
+<p>QFramework 架构提供了四个层级：</p>
+<ul>
+<li>表现层：IController</li>
+<li>系统层：ISystem</li>
+<li>数据层：IModel</li>
+<li>工具层：IUtility</li>
+</ul>
+<p>除了四个层级，还提供了 Command、Query、Event、BindableProperty 等概念和工具。</p>
+<p>这里有一套层级的规则，如下：</p>
+<ul>
+<li><p>表现层：ViewController 层。IController接口，负责接收输入和状态变化时的表现，一般情况下，MonoBehaviour 均为表现层</p>
+<ul>
+<li>可以获取 System、Model</li>
+<li>可以发送 Command、Query</li>
+<li>可以监听 Event</li>
+</ul>
+</li>
+<li><p>系统层：System层。ISystem接口，帮助IController承担一部分逻辑，在多个表现层共享的逻辑，比如计时系统、商城系统、成就系统等</p>
+<ul>
+<li>可以获取 System、Model、Utility</li>
+<li>可以监听Event</li>
+<li>可以发送Event</li>
+</ul>
+</li>
+<li><p>数据层：Model层。IModel接口，负责数据的定义、数据的增删查改方法的提供</p>
+<ul>
+<li>可以获取 Utility</li>
+<li>可以发送 Event</li>
+</ul>
+</li>
+<li><p>工具层：Utility层。IUtility接口，负责提供基础设施，比如存储方法、序列化方法、网络连接方法、蓝牙方法、SDK、框架继承等。啥都干不了，可以集成第三方库，或者封装API</p>
+</li>
+<li><p>Command：命令，负责数据的增删改。</p>
+<ul>
+<li>可以获取 System、Model、Utility</li>
+<li>可以发送 Event、Command、Query</li>
+</ul>
+</li>
+<li><p>Query：查询、负责数据的查询</p>
+<ul>
+<li>可以获取 System、Model</li>
+<li>可以发送 Query</li>
+</ul>
+</li>
+</ul>
+<p>或者列个表格：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>获取System</th>
+<th>获取Model</th>
+<th>获取Utility</th>
+<th>监听Event</th>
+<th>发送Event</th>
+<th>发送Command</th>
+<th>发送Query</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Controller</td>
+<td>√</td>
+<td>√</td>
+<td>-</td>
+<td>√</td>
+<td>-</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>System</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Model</td>
+<td>-</td>
+<td>-</td>
+<td>√</td>
+<td>-</td>
+<td>√</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Utility</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Command</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>-</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>Query</td>
+<td>√</td>
+<td>√</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>√</td>
+</tr>
+</tbody></table>
+<ul>
+<li>通用规则：<ul>
+<li>IController 更改 ISystem、IModel 的状态必须用Command</li>
+<li>ISystem、IModel 状态发生变更后通知 IController 必须用事件或BindableProperty（还没讲到的工具）</li>
+<li>IController可以获取ISystem、IModel对象来进行数据查询</li>
+<li>ICommand、IQuery 不能有状态</li>
+<li>上层可以直接获取下层，下层不能获取上层对象</li>
+<li>下层向上层通信用事件</li>
+<li>上层向下层通信用方法调用（只是做查询，状态变更用 Command），IController 的交互逻辑为特别情况，只能用 Command</li>
+</ul>
+</li>
+</ul>
+<p>此外如果想改变以上规则也很容易，只要在源码加上对应接口即可。</p>
+]]></content>
+      <categories>
+        <category>Unity</category>
+      </categories>
+      <tags>
+        <tag>Unity</tag>
+        <tag>QFramework</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ICS Linux知识整理(1)</title>
+    <url>/2024/10/21/ICS-linux-1/</url>
+    <content><![CDATA[<p>注：自用向课堂笔记。</p>
+<h5 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h5><p>image（镜像）：相当于环境配置数据。<br>container（容器）：镜像的实例，一个孤立的系统。</p>
+<ul>
+<li>image可以通过dockerfile + docker build创建。</li>
+<li>创建了一个image后，便可以创建新的container并运行。使用如下指令：<br>-<code>docker build -t &lt;image-tag-name&gt; &lt;dockerfile-path&gt;</code></li>
+<li>可以用docker start，docker stop，docker rm等命令控制container的运行。<br><code>docker images</code> or <code>docker image list</code>: 列出你系统里所有的image。</li>
+</ul>
+<ul>
+<li><code>docker run</code>: 在一个image的基础上运行container。</li>
+<li><code>docker ps</code>: 列出正在运行的container。</li>
+<li><code>docker stop &lt;container-id-or-name&gt;</code>: 停止一个container。</li>
+<li><code>docker rm &lt;container-id-or-name&gt;</code>: 移除某个已停止的container。</li>
+</ul>
+<h4 id="一大波命令正在来袭"><a href="#一大波命令正在来袭" class="headerlink" title="一大波命令正在来袭"></a>一大波命令正在来袭</h4><h5 id="如何进入容器"><a href="#如何进入容器" class="headerlink" title="如何进入容器"></a>如何进入容器</h5><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker start my-linux</span><br><span class="line">docker exec -it my-linux /bin/bash</span><br><span class="line"></span><br><span class="line">### 建议使用ics用户，而不是root用户</span><br><span class="line">### 故在Linux Shell里面继续执行如下命令，切换用户身份（从root到ics）</span><br><span class="line">su - ics</span><br></pre></td></tr></table></figure>
+<h5 id="ls与长列表格式"><a href="#ls与长列表格式" class="headerlink" title="ls与长列表格式"></a>ls与长列表格式</h5><p><code>ls</code>：查看目前工作路径下的所有内容。<br>具体命令语法：<code>ls [选项] [目录|文件]</code><br>若想进一步了解，可使用 <code>ls --help</code>查看详情。如：<code>ls -l</code>会使用长列表格式进行输出。如下面这种：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">total 8</span><br><span class="line">-rw-rw-r-- 1 ics ics    0 Oct  8 09:11 bar</span><br><span class="line">drwxrwxr-x 2 ics ics 4096 Oct  8 09:11 baz</span><br><span class="line">-rwxrw-r-- 1 ics ics    0 Oct  8 09:22 echo.sh</span><br><span class="line">-rw-rw-r-- 1 ics ics    6 Oct  8 09:11 foo</span><br></pre></td></tr></table></figure>
+<p><code>total 8</code>：以下所有文件大小总和为8。使用<code>ls -lh</code>可以将它输出为人类可读形式：8.0K。<br>第一列第一个字母是文件类型。</p>
+<table>
+<thead>
+<tr>
+<th>符号</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-</td>
+<td>普通文件</td>
+</tr>
+<tr>
+<td>d</td>
+<td>目录文件</td>
+</tr>
+<tr>
+<td>b</td>
+<td>块设备文件（block）</td>
+</tr>
+<tr>
+<td>c</td>
+<td>字符设备文件（character）</td>
+</tr>
+<tr>
+<td>l</td>
+<td>符号链接文件</td>
+</tr>
+<tr>
+<td>p</td>
+<td>命令管道文件（pipe）</td>
+</tr>
+<tr>
+<td>s</td>
+<td>套接字文件（socket）</td>
+</tr>
+</tbody></table>
+<p>后面的九个字母是一系列权限，每三个字母为一组，分别为所有者权限、组用户权限、其他用户权限。r、w、x分别为读、写、执行，有则有，无则为-。<br><code>chmod</code>可以修改这个权限。如<code>chmod ugo+r file1.txt/chmod a+r file1.txt</code>将file1.txt设为所有人皆可读取。<br>第二列到最后一列分别为链接数（或子目录数）、文件的用户所有者、文件的组群所有者、文件的长度（单位是字节，不是磁盘占用量）、最近更新时间、文件名。<br><code>chown</code>可以修改文件用户所有者，如<code>chown -R ics wget.sh</code>。<code>-R</code>（注意大写）选项表示连同子目录中的所有文件，都更改所有者。<br>此外，<code>ls -S</code>会将文件大小从大到小排序。</p>
+<h5 id="基本操作（杂）"><a href="#基本操作（杂）" class="headerlink" title="基本操作（杂）"></a>基本操作（杂）</h5><p><code>pwd</code>：输出绝对工作路径。print working directory<br><code>cd</code>：进入你输入的工作路径。change directory<br><code>~</code>：家目录，分配给每个用户的个人目录，大概率以用户名命名（不是&#x2F;home）。<br><code>.</code>：当前路径。<br><code>..</code>：父路径。<br><code>/</code>：根目录。<br><code>echo</code>：复读后面的字符串。若加<code>-e</code>可开启转义，这时输入<code>\n</code>就能换行了。<br><code>top</code>：输出linux进程。进入top界面后，按q退出，按h获取帮助。top界面太复杂，这边暂时先不讲。<br><code>ps</code>：显示当前进程的状态。其参数同样非常多。<br><code>cp &lt;source&gt; &lt;destination&gt;</code>：复制。<br><code>mv &lt;source&gt; &lt;destination&gt;</code>：移动和重命名。<br><code>rm &lt;filename&gt;</code>：删除文件。<br><code>rmdir &lt;directory&gt;</code>：删除空文件夹&#x2F;路径。<br><code>mkdir &lt;directory&gt;</code>：新建路径。<br><code>touch &lt;file&gt;</code>：创建空文件。<br><code>cat</code>：暂时还不太懂。见<a class="link"   href="https://www.runoob.com/linux/linux-comm-cat.html" >Linux cat 命令 | 菜鸟教程 (runoob.com)<i class="fas fa-external-link-alt"></i></a><br><code>sort</code>：将文本文件按行排序。<code>-d</code>：字典序。<code>-n</code>：数字序。<code>-r</code>：反序。<br>如命令<code>sort -k 2n xxx.txt</code>，<code>-k</code>表示使用key排序，后面的<code>2n</code>定义了key：第二列，数字序。<br><code>head/tail</code>：输出最前或最后几行。<br>默认为10行，但若加<code>-n</code>则可自定义，如输入<code>head -n 2 xxx.txt</code>，则会输出2行。<br><code>nl xxx.text</code>：带行号地输出。</p>
+<p>获取帮助的两种方式：<code>man &lt;command&gt;</code>或在命令后面加<code>--help</code>或<code>-h</code>。</p>
+<p><code>sudo</code>：让一个用户暂时获得root权限来做下面的事（不要轻易使用）。<br><code>|</code>（pipe）：可以连接命令，让前一个的输出作为后一个的输入。<br><code>grep</code>：查找含有某正则表达式的行。<br>如<code>grep -in this *</code>将在路径下的所有文件中不区别大小写地找含有this的行，且在输出的时候显示行号。<br>可以使用<code>&amp;&amp;</code>在同一行内切换目录。</p>
+<h5 id="执行命令提示command-not-found怎么办"><a href="#执行命令提示command-not-found怎么办" class="headerlink" title="执行命令提示command not found怎么办"></a>执行命令提示command not found怎么办</h5><p>自然是找到命令所在的包。许多命令所在的包名和命令名是一样的。对于不一样的，可以上这个网站查询：<a class="link"   href="https://command-not-found.com/" >command-not-found.com<i class="fas fa-external-link-alt"></i></a><br>找到了怎么办？<br><code>apt [options] [command] [package ...]</code><br>安装包：<code>sudo apt install &lt;package_name&gt;</code><br>具体查看：<a class="link"   href="https://www.runoob.com/linux/linux-comm-apt.html" >Linux apt 命令 | 菜鸟教程 (runoob.com)<i class="fas fa-external-link-alt"></i></a></p>
+<h5 id="重定向输入输出流"><a href="#重定向输入输出流" class="headerlink" title="重定向输入输出流"></a>重定向输入输出流</h5><p><code>command &lt; file.txt</code>：指令的输入将从file.txt读取。<br><code>command &gt; file.txt</code>：指令的输出将输出到file.txt并覆盖原有内容。<br><code>command &gt;&gt; file.txt</code>：指令将追加到file.txt后面。<br><code>command 2&gt; file.txt</code>：将标准错误输出到file.txt，标准输出不影响。<br><code>command &amp;&gt; file.txt</code>：将命令的标准输出和标准错误同时重定向到 file.txt。这里的 <code>&amp;&gt;</code> 是一个语法糖，等同于 <code>command &gt; file.txt 2&gt;&amp;1</code>。</p>
+<h5 id="awk"><a href="#awk" class="headerlink" title="awk"></a>awk</h5><p><code>awk</code> 是一个强大的文本分析工具，可在后方执行简单的脚本。</p>
+<h5 id="sed"><a href="#sed" class="headerlink" title="sed"></a>sed</h5><p>sed命令利用脚本来处理文本文件。不过，这些处理并不会实际更改文件，而是把改后的内容输出到终端。若要修改文件，加上<code>-i</code>。<br>首先，在sed后面输入的指令部分（不是选项，不是<code>-e</code> <code>-f</code>之类的）一定是用单引号括起来的。<br><code>sed &#39;s/old/new/g&#39; file</code>：查找到所有的old并替换成new。<br><code>sed &#39;3 s/old/new/&#39; file</code>：查找到第3行第一个old并替换成new。<br><code>sed &#39;3d&#39; file</code>：删除第3行。<br><code>sed -n &#39;3p&#39; file</code>：输出第3行。<code>-n</code>表示不输出处理后的结果，此处如果不去掉会输出整个文件，且把第3行输出2次。<br><code>sed &#39;2i\This is a new line&#39; file</code>：在第2行前面加上这一行。<br><code>sed &#39;2a\This is a new line&#39; file</code>：在第2行后面加上这一行。</p>
+]]></content>
+      <categories>
+        <category>ICS</category>
+      </categories>
+      <tags>
+        <tag>ICS</tag>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+</search>

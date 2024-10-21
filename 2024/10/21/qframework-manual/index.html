@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="yangxu286">
+    
+    <title>
+        
+            面向我自己的QFramework快速入门（1） |
+        
+        yangxu286
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+        <link rel="shortcut icon" href="/images/logo.svg">
+    
+    
+<link rel="stylesheet" href="/font/css/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/font/css/regular.min.css">
+
+    
+<link rel="stylesheet" href="/font/css/solid.min.css">
+
+    
+<link rel="stylesheet" href="/font/css/brands.min.css">
+
+    
+    <script class="keep-theme-configurations">
+    const KEEP = window.KEEP || {}
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"en","path":"search.xml"}
+    KEEP.theme_config = {"base_info":{"primary_color":"#6A5ACD","title":"yangxu286","author":"yangxu286","avatar":"/images/avatar.svg","logo":"/images/logo.svg","favicon":"/images/logo.svg"},"menu":{"home":"/","archives":"/archives","tags":"/tags","categories":"/categories"},"first_screen":{"enable":true,"background_img":"/images/bg.svg","background_img_dark":"/images/bg.svg","description":"Keep writing and Keep loving.","hitokoto":false},"social_contact":{"enable":false,"links":{"github":null,"weixin":null,"qq":null,"weibo":null,"zhihu":null,"twitter":null,"x":null,"facebook":null,"email":null}},"scroll":{"progress_bar":false,"percent":true,"hide_header":true},"home":{"announcement":null,"category":true,"tag":true,"post_datetime":"updated"},"post":{"author_badge":{"enable":true,"level_badge":true,"custom_badge":["One","Two","Three"]},"word_count":{"wordcount":true,"min2read":true},"datetime_format":"YYYY-MM-DD HH:mm:ss","copyright_info":true,"share":true,"reward":{"enable":false,"img_link":null,"text":null}},"code_block":{"tools":{"enable":true,"style":"default"},"highlight_theme":"default"},"toc":{"enable":true,"number":false,"expand_all":true,"init_open":true,"layout":"right"},"website_count":{"busuanzi_count":{"enable":true,"site_uv":true,"site_pv":true,"page_pv":true}},"local_search":{"enable":true,"preload":true},"comment":{"enable":false,"use":"valine","valine":{"appid":null,"appkey":null,"server_urls":null,"placeholder":null},"gitalk":{"github_id":null,"github_admins":null,"repository":null,"client_id":null,"client_secret":null,"proxy":null},"twikoo":{"env_id":null,"region":null,"version":"1.6.36"},"waline":{"server_url":null,"reaction":false,"version":"3.2.1"},"giscus":{"repo":null,"repo_id":null,"category":"Announcements","category_id":null,"reactions_enabled":false},"artalk":{"server":null},"disqus":{"shortname":null}},"rss":{"enable":false},"lazyload":{"enable":true},"cdn":{"enable":false,"provider":"cdnjs"},"pjax":{"enable":true},"footer":{"since":2024,"word_count":true,"site_deploy":{"enable":true,"provider":"github","url":null},"record":{"enable":false,"list":[{"code":null,"link":null}]}},"inject":{"enable":false,"css":[null],"js":[null]},"root":"","source_data":{},"version":"4.2.3"}
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"}
+    KEEP.language_code_block = {"copy":"Copy code","copied":"Copied","fold":"Fold code block","folded":"Folded"}
+    KEEP.language_copy_copyright = {"copy":"Copy copyright info","copied":"Copied","title":"Original post title","author":"Original post author","link":"Original post link"}
+  </script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <i class="pjax-progress-icon fas fa-circle-notch fa-spin"></i>
+    
+</div>
+
+
+
+<main class="page-container border-box">
+    <!-- home first screen  -->
+    
+
+    <!-- page content -->
+    <div class="page-main-content border-box">
+        <div class="page-main-content-top">
+            
+<header class="header-wrapper">
+
+    <div class="border-box header-content">
+        <div class="left flex-start border-box">
+            
+                <a class="logo-image border-box" href="/">
+                    <img src="/images/logo.svg">
+                </a>
+            
+            <a class="site-name border-box" href="/">
+               yangxu286
+            </a>
+        </div>
+
+        <div class="right border-box">
+            <div class="pc border-box">
+                <ul class="menu-list border-box">
+                    
+                        
+                        <li class="menu-item flex-start border-box">
+                            <a class="menu-text-color border-box" href="/">
+                                
+                                HOME
+                                
+                            </a>
+                            
+                        </li>
+                    
+                        
+                        <li class="menu-item flex-start border-box">
+                            <a class="menu-text-color border-box" href="/archives">
+                                
+                                ARCHIVES
+                                
+                            </a>
+                            
+                        </li>
+                    
+                        
+                        <li class="menu-item flex-start border-box">
+                            <a class="menu-text-color border-box" href="/tags">
+                                
+                                TAGS
+                                
+                            </a>
+                            
+                        </li>
+                    
+                        
+                        <li class="menu-item flex-start border-box">
+                            <a class="menu-text-color border-box" href="/categories">
+                                
+                                CATEGORIES
+                                
+                            </a>
+                            
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="menu-text-color fas search fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile border-box flex-start">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list border-box">
+            
+                
+                <li class="drawer-menu-item border-box not-sub-menu">
+                    <label class="drawer-menu-label border-box">
+                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/">
+                            
+                            HOME
+                        </a>
+                        
+                    </label>
+                    
+                </li>
+            
+                
+                <li class="drawer-menu-item border-box not-sub-menu">
+                    <label class="drawer-menu-label border-box">
+                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/archives">
+                            
+                            ARCHIVES
+                        </a>
+                        
+                    </label>
+                    
+                </li>
+            
+                
+                <li class="drawer-menu-item border-box not-sub-menu">
+                    <label class="drawer-menu-label border-box">
+                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/tags">
+                            
+                            TAGS
+                        </a>
+                        
+                    </label>
+                    
+                </li>
+            
+                
+                <li class="drawer-menu-item border-box not-sub-menu">
+                    <label class="drawer-menu-label border-box">
+                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/categories">
+                            
+                            CATEGORIES
+                        </a>
+                        
+                    </label>
+                    
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle border-box">
+
+            <div class="main-content border-box">
+                
+
+                    
+<div class="fade-in-down-animation">
+    <div class="post-page-container border-box">
+        <div class="post-content-container border-box">
+            
+
+            <div class="post-content-bottom border-box">
+                
+                    <div class="post-title">
+                        面向我自己的QFramework快速入门（1）
+                    </div>
+                
+
+                
+                    <div class="post-header border-box">
+                        
+                            <div class="avatar-box border-box">
+                                <img src="/images/avatar.svg">
+                            </div>
+                        
+                        <div class="info-box">
+                            <div class="author border-box">
+                                <span class="name">yangxu286</span>
+                                
+                                    <span class="author-badge">Lv1</span>
+                                
+                            </div>
+                            <div class="meta-info border-box">
+                                
+
+<div class="post-meta-info-container border-box post">
+    <div class="post-meta-info border-box">
+        
+
+        
+            <span class="meta-info-item post-create-date">
+                <i class="icon fa-solid fa-calendar-plus"></i>&nbsp;
+                <span class="datetime">2024-10-21 11:34:35</span>
+            </span>
+
+            <span class="meta-info-item post-update-date">
+                <i class="icon fa-solid fa-file-pen"></i>&nbsp;
+                <span class="datetime" data-updated="Mon Oct 21 2024 13:44:36 GMT+0800">2024-10-21 13:44:36</span>
+            </span>
+        
+
+        
+            <span class="meta-info-item post-category border-box"><i class="icon fas fa-folder"></i>&nbsp;
+                <ul class="post-category-ul">
+                    
+                            <li class="category-item"><a href="/categories/Unity/">Unity</a></li>
+                        
+                    
+                </ul>
+            </span>
+        
+
+        
+            <span class="post-tag meta-info-item border-box">
+                <ul class="post-tag-ul">
+                    
+                            <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/Unity/">Unity</a></li>
+                        
+                    
+                            <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/QFramework/">QFramework</a></li>
+                        
+                    
+                </ul>
+            </span>
+        
+
+        
+        
+            <span class="meta-info-item post-wordcount">
+                <i class="icon fas fa-file-word"></i>&nbsp;<span>4.1k Words</span>
+            </span>
+        
+        
+            <span class="meta-info-item post-min2read">
+                <i class="icon fas fa-clock"></i>&nbsp;<span>16 Mins</span>
+            </span>
+        
+        
+            <span class="meta-info-item post-pv">
+                <i class="icon fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+            </span>
+        
+    </div>
+
+    
+</div>
+
+                            </div>
+                        </div>
+                    </div>
+                
+
+                <div class="post-content keep-markdown-body ">
+                    
+
+                    
+                         <h4 id="一些废话"><a href="#一些废话" class="headerlink" title="一些废话"></a>一些废话</h4><p>QFramework有作者本人编写的教程。此前经常阻止我写笔记的一个原因是我学习东西的途径绝大多数时候也是网络教程，且相比视频更偏好文档，那么有教程的存在我的笔记又有什么意义呢？不过阅读了这篇教程（并且经历了一个昏昏欲睡十分痛苦的下午）后，我感觉这篇教程虽然使用了一个案例覆盖了基本全部元素，但并没有特别详细，也没有让我体会到QFramework这些元素的设计特色与本质，而这是我比较喜欢在最开始就了解到的。此外也有一些前置知识我自己不太了解。因此我打算参考原教程给自己重新整理一个教程。</p>
+<h4 id="QFramework的基础：MVC架构"><a href="#QFramework的基础：MVC架构" class="headerlink" title="QFramework的基础：MVC架构"></a>QFramework的基础：MVC架构</h4><p>MVC架构将应用程序分为了<strong>Model、View和Controller</strong>三部分。Model简单来说就是管数据和与紧密相关的一些逻辑的；View是用户可交互的内容，不负责处理逻辑，只负责根据Model展示内容和接收用户的输入；Controller负责处理用户的输入，并引起Model和View的一系列改变。</p>
+<p>在这里可能比较难以区分Model和Controller各自负责的逻辑部分，但介绍了Controller负责的两部分逻辑后这一点可能会更加明白：</p>
+<ul>
+<li><p>交互逻辑：根据用户的输入对Model进行操作；</p>
+</li>
+<li><p>表现逻辑：根据Model对View进行操作。</p>
+</li>
+</ul>
+<p>而其他如Model自身的一些处理就是Model自己负责的。</p>
+<p>如教程里举的这个例子，一个简单的点击计数器：</p>
+<p><img  
+                       lazyload
+                       alt="image"
+                       data-src="https://file.liangxiegame.com/902ef543-64b1-45ad-ae45-ea180ebec133.png"
+                        alt="img"
+                 ></p>
+<p>Model包含一个存储当前数值的整型变量；View包含两个按钮和一个数字文本；Controller则负责监听按钮被按下的输入，并且完成两个逻辑：</p>
+<ul>
+<li><p>在按钮被点击后，改变数值（交互逻辑）</p>
+</li>
+<li><p>在数值改变后，改变数字文本（表现逻辑）</p>
+</li>
+</ul>
+<p>暂时不引入QFramework，我们用脚本实现这一系列内容：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.UI;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">QFramework.Example</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// Controller</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CounterAppController</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// View</span></span><br><span class="line">        <span class="keyword">private</span> Button mBtnAdd;</span><br><span class="line">        <span class="keyword">private</span> Button mBtnSub;</span><br><span class="line">        <span class="keyword">private</span> Text mCountText;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Model</span></span><br><span class="line">        <span class="keyword">private</span> <span class="built_in">int</span> mCount = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// View 组件获取</span></span><br><span class="line">            mBtnAdd = transform.Find(<span class="string">&quot;BtnAdd&quot;</span>).GetComponent&lt;Button&gt;();</span><br><span class="line">            mBtnSub = transform.Find(<span class="string">&quot;BtnSub&quot;</span>).GetComponent&lt;Button&gt;();</span><br><span class="line">            mCountText = transform.Find(<span class="string">&quot;CountText&quot;</span>).GetComponent&lt;Text&gt;();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 监听输入</span></span><br><span class="line">            mBtnAdd.onClick.AddListener(() =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// 交互逻辑</span></span><br><span class="line">                mCount++;</span><br><span class="line">                <span class="comment">// 表现逻辑</span></span><br><span class="line">                UpdateView();        </span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            mBtnSub.onClick.AddListener(() =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// 交互逻辑</span></span><br><span class="line">                mCount--;</span><br><span class="line">                <span class="comment">// 表现逻辑</span></span><br><span class="line">                UpdateView();</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            UpdateView();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">UpdateView</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            mCountText.text = mCount.ToString();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这其中比较容易引起疑惑的是<code>AddListener(...)</code>那一部分。这就需要引入<strong>回调函数</strong>（Callback Function）的概念：简单地说，就是作为参数传给另一个函数，并且在满足特定条件的时候会被自动调用的函数。在QFramework的编写中会经常用到回调函数，尤其是用Lambda表达式编写的回调函数，所以如果之前不太习惯这种风格，那么需要注意。</p>
+<h4 id="QFramework的Model"><a href="#QFramework的Model" class="headerlink" title="QFramework的Model"></a>QFramework的Model</h4><p>不难发现在上面这段代码中，Model只属于<code>CounterAppController</code>，不便于全局共享。若想让它变成共享的，可以将其变成静态变量或单例；但QFramework提供了一个更美的方案。</p>
+<p>首先我们引入一个继承自<code>AbstractModel</code>类的具体类来存储这个整型数值，这个类是QFramework提供给所有Model的基类：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CounterAppModel</span> : <span class="title">AbstractModel</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">int</span> Count;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnInit</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            Count = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后，我们引入一个继承自<code>Architecture</code>的整体架构类，并且在里面注册好需要的所有Model、System和Utility（后面会讲）等：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CounterApp</span> : <span class="title">Architecture</span>&lt;<span class="title">CounterApp</span>&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Init</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 注册 Model</span></span><br><span class="line">            <span class="keyword">this</span>.RegisterModel(<span class="keyword">new</span> CounterAppModel());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个<code>Architecture</code>类提供 MVC、分层、模块管理等多种功能，其中一个体现便是Model等一经注册，就可以在任何地方访问了，如Controller。改后完整代码如下：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> UnityEngine.UI;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">QFramework.Example</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1. 定义一个 Model 对象</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CounterAppModel</span> : <span class="title">AbstractModel</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">int</span> Count;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnInit</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            Count = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2.定义一个架构（提供 MVC、分层、模块管理等）</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CounterApp</span> : <span class="title">Architecture</span>&lt;<span class="title">CounterApp</span>&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Init</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 注册 Model</span></span><br><span class="line">            <span class="keyword">this</span>.RegisterModel(<span class="keyword">new</span> CounterAppModel());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Controller</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CounterAppController</span> : <span class="title">MonoBehaviour</span> , <span class="title">IController</span> </span><br><span class="line">    <span class="comment">/* 3.实现 IController 接口 */</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// View</span></span><br><span class="line">        <span class="keyword">private</span> Button mBtnAdd;</span><br><span class="line">        <span class="keyword">private</span> Button mBtnSub;</span><br><span class="line">        <span class="keyword">private</span> Text mCountText;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. Model</span></span><br><span class="line">        <span class="keyword">private</span> CounterAppModel mModel;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 5. 获取模型</span></span><br><span class="line">            mModel = <span class="keyword">this</span>.GetModel&lt;CounterAppModel&gt;();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// View 组件获取</span></span><br><span class="line">            mBtnAdd = transform.Find(<span class="string">&quot;BtnAdd&quot;</span>).GetComponent&lt;Button&gt;();</span><br><span class="line">            mBtnSub = transform.Find(<span class="string">&quot;BtnSub&quot;</span>).GetComponent&lt;Button&gt;();</span><br><span class="line">            mCountText = transform.Find(<span class="string">&quot;CountText&quot;</span>).GetComponent&lt;Text&gt;();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 监听输入</span></span><br><span class="line">            mBtnAdd.onClick.AddListener(() =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// 6. 交互逻辑</span></span><br><span class="line">                mModel.Count++;</span><br><span class="line">                <span class="comment">// 表现逻辑</span></span><br><span class="line">                UpdateView();        </span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            mBtnSub.onClick.AddListener(() =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// 7. 交互逻辑</span></span><br><span class="line">                mModel.Count--;</span><br><span class="line">                <span class="comment">// 表现逻辑</span></span><br><span class="line">                UpdateView();</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            UpdateView();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">UpdateView</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            mCountText.text = mModel.Count.ToString();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3.指定架构</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> IArchitecture <span class="title">GetArchitecture</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> CounterApp.Interface;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnDestroy</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 8. 将 Model 设置为空</span></span><br><span class="line">            mModel = <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中有几个疑问点，一一解答：</p>
+<h5 id="1-IController"><a href="#1-IController" class="headerlink" title="1.IController"></a>1.IController</h5><p>我们发现<code>CounterAppController</code>类继承多了一个<code>IController</code>，而它以I开头，说明它是一个接口。和C++不同，C#只支持同时继承一个类，但可以同时继承（或者更应该说实现）多个接口。这里<strong>类继承</strong>是一种“<strong>是</strong>（is-a）”的关系，<strong>接口实现</strong> 则是一种“<strong>能做</strong>（can-do）”的关系。</p>
+<blockquote>
+<p>*类声明关键字<code>Interface</code>*：表明声明一个接口。接口不能被直接实例化；继承自接口的类必须实现接口内的所有方法。</p>
+</blockquote>
+<p><code>IController</code>是QFramework提供的controller接口，不过它并没有任何方法要实现。</p>
+<h5 id="2-为什么this-GetModel-可以获取Model"><a href="#2-为什么this-GetModel-可以获取Model" class="headerlink" title="2.为什么this.GetModel&lt;&gt;()可以获取Model"></a>2.为什么this.GetModel&lt;&gt;()可以获取Model</h5><p>你可以认为这是一个类似Unity的<code>GetComponent</code>功能，它的作用就是在<em>它所属的架构</em>（所以有个this）中寻找一个后面填入的类型的Model。而后面的这个函数就是为了配合实现这个功能：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> IArchitecture <span class="title">GetArchitecture</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> CounterApp.Interface;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>所谓“指定架构”就是让<code>GetArchitecture</code>函数可以返回它所在的架构。这里我们可以发现，所有的东西都必须依附在一个架构上，只不过有一些是用<code>Register</code>，Controller（由于是最上层的东西）则需要自己来指定。<code>Interface</code>可以视作返回<code>CounterApp</code>本身。至于具体如何配合，我们可以认为是这样的流程：</p>
+<blockquote>
+<p>调用<code>this.GetModel</code>→调用<code>GetArchitecture()</code>→调用架构中的<code>GetModel</code></p>
+</blockquote>
+<p>然而深挖源代码后我发现里面有些对我来说的新知识，所以我打算在下面的折叠里详细介绍：</p>
+<details><summary>详细介绍</summary>
+
+<p>首先，<code>IController</code>继承自一系列其他的接口，包括但不限于<code>IBelongToArchitecture, ICanGetSystem, ICanGetModel, ICanGetUtility</code>等。而<code>GetModel</code>这个方法，是以<strong>扩展方法</strong>的形式实现的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public static class CanGetModelExtension</span><br><span class="line">&#123;</span><br><span class="line">    public static T GetModel(this ICanGetModel self) where T : class, IModel =&gt;</span><br><span class="line">        self.GetArchitecture().GetModel();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>· <code>CanGetModelExtension</code>是专门用于定义这个扩展方法的静态类，这是因为C#中扩展方法必须定义在静态类中。<br>· <code>this ICanGetModel self</code>：扩展方法的第一个参数表示这个方法是针对 <code>ICanGetModel</code>类型的对象进行扩展的，<code>self</code>是方法的调用者在这个方法中的变量名。这意味着，任何实现了<code>ICanGetModel</code>接口的对象都可以调用这个扩展方法，如同它是类本身的方法一样。扩展方法还可以有第二个第三个等更多参数，它们的性质就和普通的参数一样了。<br>· <code>where T : class, IModel</code>是一个<strong>泛型约束</strong>，它指定了T必须是一个引用类型（<code>class</code>）（与“值类型”相对），并且必须实现<code>IModel</code>接口。这里T是一个Model的类，而QFramework也有一个给Model的接口IModel，这么做就可以理解了。  </p>
+<p>以上这些足够解释，不过我发现泛型约束还出现在另外一个地方。首先，<code>Architecture</code>也有一个接口<code>IArchitecture</code>,而<code>Architecture</code>实际上是一个继承自这个接口的抽象类，而这个抽象类的声明第一行是这样的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public abstract class Architecture : IArchitecture where T : Architecture, new()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这也是个泛型约束。首先，<code>Architecture&lt;T&gt;</code>表明T本身必须是一个继承了<code>Architecture</code>的类。这种模式被称为递归泛型。<br><code>new()</code>则要求T类型必须有一个无参构造函数（即T可以通过<code>new T()</code>创建）。<br>不难发现<code>CounterApp</code>符合这个条件。  </p>
+<p>值得一提的是，<code>CounterApp.Interface</code>实际上是在<code>Architecture&lt;T&gt;</code>中这么干的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"> protected static T mArchitecture;</span><br><span class="line"> public static IArchitecture Interface</span><br><span class="line">&#123;</span><br><span class="line">    get</span><br><span class="line">    &#123;</span><br><span class="line">        if (mArchitecture == null) MakeSureArchitecture();</span><br><span class="line">        return mArchitecture;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>所以返回的东西实际上只有<code>IArchitecture</code>的性质，也就是一个接口。</p>
+</details>
+
+<h4 id="Command"><a href="#Command" class="headerlink" title="Command"></a>Command</h4><p>Command是用来简化Controller中的交互逻辑的。</p>
+<p>可以把它直接看成一个更规范整洁的、经常被使用所以需要整合的函数或者方法。比如计数器中的Command可以像是这样：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">IncreaseCountCommand</span> : <span class="title">AbstractCommand</span></span><br><span class="line">   &#123;</span><br><span class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnExecute</span>()</span></span><br><span class="line">       &#123;</span><br><span class="line">           <span class="keyword">this</span>.GetModel&lt;CounterAppModel&gt;().Count++;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">DecreaseCountCommand</span> : <span class="title">AbstractCommand</span></span><br><span class="line">   &#123;</span><br><span class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnExecute</span>()</span></span><br><span class="line">       &#123;</span><br><span class="line">           <span class="keyword">this</span>.GetModel&lt;CounterAppModel&gt;().Count--;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用则像：<code> this.SendCommand&lt;DecreaseCountCommand&gt;();</code> 它也可以在许多地方调用。<em>如果你读过详细介绍，我可以告诉你它也是一个扩展方法。</em></p>
+<p>Command也可以在别处复用，当然还有其他的一些性质。实际上，你肯定有过把经常复用的代码整合到一个函数中的经验，但是Command是将所有的这些函数加上了“是一个Command”这样的性质。一来再乱也乱不出Command类，二来可以通过这个共同点实现更多Command的独特功能。</p>
+<h4 id="Event"><a href="#Event" class="headerlink" title="Event"></a>Event</h4><p>Event是用来简化Controller中的表现逻辑的。</p>
+<p>我个人认为Event非常像Qt的signal和slot（如果你并不了解，不用在意这句话，但如果你了解则可以帮助理解）。非常明显的一点在于，Event的声明只需要一个类型，且为了让garbage collection最少，往往使用结构体：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">struct</span> CountChangeEvent</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样来执行一个事件，非常像发射signal：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.SendEvent&lt;CountChangeEvent&gt;();</span><br></pre></td></tr></table></figure>
+
+<p>在Controller（或者其他地方）中，可以完善具体的Event内容：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.RegisterEvent&lt;CountChangeEvent&gt;(e =&gt;</span><br><span class="line">&#123;</span><br><span class="line">	UpdateView();</span><br><span class="line">&#125;).UnRegisterWhenGameObjectDestroyed(gameObject);</span><br></pre></td></tr></table></figure>
+
+<p>这里传入的也是一个有参数e的回调函数（我们也经常写Lambda表达式形式的slot函数，不是吗？），不过这个参数没有被使用。当gameObject被销毁后，这个Event内容便会被清除。</p>
+<p><em>是的，<code>SendEvent</code>和<code>RegisterEvent</code>都是扩展方法</em>。</p>
+<hr>
+<p>在这里我们这么做的初衷是什么？说回简化表现逻辑的事——在计数器的例子中，我们希望Model每次被改变就更新显示，那么我们就可以手动定义更新显示事件（上面已经有了）并且在修改Model后执行：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">IncreaseCountCommand</span> : <span class="title">AbstractCommand</span> </span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnExecute</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">this</span>.GetModel&lt;CounterAppModel&gt;().Count++;</span><br><span class="line">        <span class="keyword">this</span>.SendEvent&lt;CountChangeEvent&gt;(); <span class="comment">// ++</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">DecreaseCountCommand</span> : <span class="title">AbstractCommand</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnExecute</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">this</span>.GetModel&lt;CounterAppModel&gt;().Count--;</span><br><span class="line">        <span class="keyword">this</span>.SendEvent&lt;CountChangeEvent&gt;(); <span class="comment">// ++</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，我们不再需要手动调用表现逻辑，而只需要在执行交互逻辑的Command里紧接着发送事件。而Controller原本表现逻辑的部分只需要把事件订阅好就可以了。<strong>绝大多数情况下，Command里内容执行完后必须发送事件，除非View不用更新！</strong></p>
+<p><em>不过我个人认为，Event这个设计更吸引我的点是它可以进行架构内的通讯。实际上我们在很多地方都可以响应一个<code>SendEvent</code>，不仅限于Command里面。</em></p>
+<blockquote>
+<p>Command和Event是基于<strong>CQRS</strong>（Command Query Responsibility Segregation）原则的。什么违反了这个原则呢？若一个函数同时进行了写入（改动）和读取（返回）功能，则它违反了这个原则，比如<code>stack</code>或者<code>queue</code>的<code>pop()</code>等。</p>
+</blockquote>
+<h4 id="Utility"><a href="#Utility" class="headerlink" title="Utility"></a>Utility</h4><p>Utility没有自带的功能。它用来写一些我们自定义的基础设施，比如存储方法、序列化方法、网络连接方法、蓝牙方法、SDK、框架继承等。以这个计数器中的存储方法为例，我们可以定义存储的Utility，这样就可以在需要修改的时候只修改Utility中的内容：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Storage</span> : <span class="title">IUtility</span></span><br><span class="line">   &#123;</span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SaveInt</span>(<span class="params"><span class="built_in">string</span> key, <span class="built_in">int</span> <span class="keyword">value</span></span>)</span></span><br><span class="line">       &#123;</span><br><span class="line">           PlayerPrefs.SetInt(key,<span class="keyword">value</span>);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="built_in">int</span> <span class="title">LoadInt</span>(<span class="params"><span class="built_in">string</span> key, <span class="built_in">int</span> defaultValue = <span class="number">0</span></span>)</span></span><br><span class="line">       &#123;</span><br><span class="line">           <span class="keyword">return</span> PlayerPrefs.GetInt(key, defaultValue);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CounterApp</span> : <span class="title">Architecture</span>&lt;<span class="title">CounterApp</span>&gt;</span><br><span class="line">   &#123;</span><br><span class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Init</span>()</span></span><br><span class="line">       &#123;</span><br><span class="line">           <span class="comment">// 注册 Model</span></span><br><span class="line">           <span class="keyword">this</span>.RegisterModel(<span class="keyword">new</span> CounterAppModel());</span><br><span class="line"></span><br><span class="line">           <span class="comment">// 注册存储工具的对象  !!!!</span></span><br><span class="line">           <span class="keyword">this</span>.RegisterUtility(<span class="keyword">new</span> Storage());</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用Utility be like：<code>this.GetUtility&lt;Storage&gt;().SaveInt(nameof(Count), Count);</code><em>是的，<code>GetUtility</code>也是……</em></p>
+<h4 id="System"><a href="#System" class="headerlink" title="System"></a>System</h4><p>System用于集成一些事件（如相似性质的规则触发的事件），帮助Controller承担一部分逻辑，尤其是在多个表现层共享的逻辑，比如计时系统、商城系统、成就系统等。</p>
+<p>比如计数器的成就系统：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AchievementSystem</span> : <span class="title">AbstractSystem</span> <span class="comment">// +</span></span><br><span class="line">   &#123;</span><br><span class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnInit</span>()</span></span><br><span class="line">       &#123;</span><br><span class="line">           <span class="keyword">var</span> model = <span class="keyword">this</span>.GetModel&lt;CounterAppModel&gt;();</span><br><span class="line"></span><br><span class="line">           <span class="keyword">this</span>.RegisterEvent&lt;CountChangeEvent&gt;(e =&gt;</span><br><span class="line">           &#123;</span><br><span class="line">               <span class="keyword">if</span> (model.Count == <span class="number">10</span>)</span><br><span class="line">               &#123;</span><br><span class="line">                   Debug.Log(<span class="string">&quot;触发 点击达人 成就&quot;</span>);</span><br><span class="line">               &#125;</span><br><span class="line">               <span class="keyword">else</span> <span class="keyword">if</span> (model.Count == <span class="number">20</span>)</span><br><span class="line">               &#123;</span><br><span class="line">                   Debug.Log(<span class="string">&quot;触发 点击专家 成就&quot;</span>);</span><br><span class="line">               &#125; <span class="keyword">else</span> <span class="keyword">if</span> (model.Count == <span class="number">-10</span>)</span><br><span class="line">               &#123;</span><br><span class="line">                   Debug.Log(<span class="string">&quot;触发 点击菜鸟 成就&quot;</span>);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>System同样需要注册：<code>this.RegisterSystem(new AchievementSystem());</code></p>
+<h4 id="Query"><a href="#Query" class="headerlink" title="Query"></a>Query</h4><p>Query是CQRS原则的另一块拼图。它可以集成查找操作，和Command用法几乎一样，把它们分为两种类型大抵是为了将这两种操作分类。</p>
+<p>Query继承自<code>AbstractQuery</code>，不过需要写明查询结果类型：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SchoolAllPersonCountQuery</span> : <span class="title">AbstractQuery</span>&lt;<span class="title">int</span>&gt;</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="built_in">int</span> <span class="title">OnDo</span>()</span></span><br><span class="line">           &#123;</span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">this</span>.GetModel&lt;StudentModel&gt;().StudentNames.Count +</span><br><span class="line">                      <span class="keyword">this</span>.GetModel&lt;TeacherModel&gt;().TeacherNames.Count;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这样使用：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (GUILayout.Button(<span class="string">&quot;查询学校总人数&quot;</span>))</span><br><span class="line">&#123;</span><br><span class="line">	mAllPersonCount = <span class="keyword">this</span>.SendQuery(<span class="keyword">new</span> SchoolAllPersonCountQuery());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="架构的规则"><a href="#架构的规则" class="headerlink" title="架构的规则"></a>架构的规则</h4><p>虽然上面尤其提到了在许多地方都可以使用扩展方法，但具体哪里可以使用肯定也是有明确的规定的。只要在源码里查看对应的接口所继承的接口就可以了，比如：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IController</span> : <span class="title">IBelongToArchitecture</span>, <span class="title">ICanSendCommand</span>, <span class="title">ICanGetSystem</span>, <span class="title">ICanGetModel</span>,<span class="title">ICanRegisterEvent</span>, <span class="title">ICanSendQuery</span></span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>意味着它必须指定所属架构；可以发送Command和Query；可以获取System和Model；可以监听Event。</p>
+<p>其他的可以自己去查看源码，但为了保持这篇教程的完整性，转载一些原教程中的规则：</p>
+<hr>
+<p>QFramework 架构提供了四个层级：</p>
+<ul>
+<li>表现层：IController</li>
+<li>系统层：ISystem</li>
+<li>数据层：IModel</li>
+<li>工具层：IUtility</li>
+</ul>
+<p>除了四个层级，还提供了 Command、Query、Event、BindableProperty 等概念和工具。</p>
+<p>这里有一套层级的规则，如下：</p>
+<ul>
+<li><p>表现层：ViewController 层。IController接口，负责接收输入和状态变化时的表现，一般情况下，MonoBehaviour 均为表现层</p>
+<ul>
+<li>可以获取 System、Model</li>
+<li>可以发送 Command、Query</li>
+<li>可以监听 Event</li>
+</ul>
+</li>
+<li><p>系统层：System层。ISystem接口，帮助IController承担一部分逻辑，在多个表现层共享的逻辑，比如计时系统、商城系统、成就系统等</p>
+<ul>
+<li>可以获取 System、Model、Utility</li>
+<li>可以监听Event</li>
+<li>可以发送Event</li>
+</ul>
+</li>
+<li><p>数据层：Model层。IModel接口，负责数据的定义、数据的增删查改方法的提供</p>
+<ul>
+<li>可以获取 Utility</li>
+<li>可以发送 Event</li>
+</ul>
+</li>
+<li><p>工具层：Utility层。IUtility接口，负责提供基础设施，比如存储方法、序列化方法、网络连接方法、蓝牙方法、SDK、框架继承等。啥都干不了，可以集成第三方库，或者封装API</p>
+</li>
+<li><p>Command：命令，负责数据的增删改。</p>
+<ul>
+<li>可以获取 System、Model、Utility</li>
+<li>可以发送 Event、Command、Query</li>
+</ul>
+</li>
+<li><p>Query：查询、负责数据的查询</p>
+<ul>
+<li>可以获取 System、Model</li>
+<li>可以发送 Query</li>
+</ul>
+</li>
+</ul>
+<p>或者列个表格：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>获取System</th>
+<th>获取Model</th>
+<th>获取Utility</th>
+<th>监听Event</th>
+<th>发送Event</th>
+<th>发送Command</th>
+<th>发送Query</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Controller</td>
+<td>√</td>
+<td>√</td>
+<td>-</td>
+<td>√</td>
+<td>-</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>System</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Model</td>
+<td>-</td>
+<td>-</td>
+<td>√</td>
+<td>-</td>
+<td>√</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Utility</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Command</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>-</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>Query</td>
+<td>√</td>
+<td>√</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>√</td>
+</tr>
+</tbody></table>
+<ul>
+<li>通用规则：<ul>
+<li>IController 更改 ISystem、IModel 的状态必须用Command</li>
+<li>ISystem、IModel 状态发生变更后通知 IController 必须用事件或BindableProperty（还没讲到的工具）</li>
+<li>IController可以获取ISystem、IModel对象来进行数据查询</li>
+<li>ICommand、IQuery 不能有状态</li>
+<li>上层可以直接获取下层，下层不能获取上层对象</li>
+<li>下层向上层通信用事件</li>
+<li>上层向下层通信用方法调用（只是做查询，状态变更用 Command），IController 的交互逻辑为特别情况，只能用 Command</li>
+</ul>
+</li>
+</ul>
+<p>此外如果想改变以上规则也很容易，只要在源码加上对应接口即可。</p>
+
+                    
+                </div>
+
+                
+                        
+<div class="post-copyright-info-container border-box">
+    <div class="copyright-info-content border-box">
+        <div class="copyright-info-top border-box">
+            <div class="copyright-post-title border-box text-ellipsis">
+                面向我自己的QFramework快速入门（1）
+            </div>
+
+            <div class="copyright-post-link border-box text-ellipsis">
+                2024/10/21/qframework-manual/
+            </div>
+        </div>
+
+        <div class="copyright-info-bottom border-box">
+            <div class="copyright-post-author bottom-item">
+                <div class="type">
+                    Author
+                </div>
+                <div class="content">yangxu286</div>
+            </div>
+
+            <div class="post-time bottom-item">
+                <div class="type">
+                    Published
+                </div>
+                <div class="content">2024-10-21 11:34</div>
+            </div>
+
+
+            <div class="post-license bottom-item">
+                <div class="type">
+                    License
+                </div>
+                <div class="content tooltip" data-tooltip-content="CC BY-NC-SA 4.0">
+                    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed" target="_blank">
+                        
+                            <i class="fa-brands fa-creative-commons"></i>
+                            <i class="fa-brands fa-creative-commons-by"></i>
+                            <i class="fa-brands fa-creative-commons-nc"></i>
+                            <i class="fa-brands fa-creative-commons-sa"></i>
+                        
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <i class="copyright-bg fa-solid fa-copyright"></i>
+    </div>
+    <div class="copy-copyright-info flex-center tooltip" data-tooltip-content="Copy copyright info" data-tooltip-offset-y="-2px">
+        <i class="fa-solid fa-copy"></i>
+    </div>
+</div>
+
+                
+
+                <div class="post-bottom-tags-and-share border-box">
+                    <div>
+                        
+                            <ul class="post-tags-box border-box">
+                                
+                                    <li class="tag-item border-box">
+                                        <i class="icon fas fa-hashtag"></i>&nbsp;<a href="/tags/Unity/">Unity</a>
+                                    </li>
+                                
+                                    <li class="tag-item border-box">
+                                        <i class="icon fas fa-hashtag"></i>&nbsp;<a href="/tags/QFramework/">QFramework</a>
+                                    </li>
+                                
+                            </ul>
+                        
+                    </div>
+                    <div>
+                        
+                            <div class="post-share-container border-box">
+    <ul class="share-list-wrap border-box">
+        <li class="qq share-item border-box flex-center tooltip"
+            data-tooltip-content="Share to QQ"
+        >
+            <i class="fa-brands fa-qq"></i>
+        </li>
+        <li class="wechat share-item border-box flex-center tooltip tooltip-img"
+            data-tooltip-content="Share to WeChat"
+            data-tooltip-img-tip="Scan by WeChat"
+            data-tooltip-img-style="background-color: #fff; top: -10px; padding: 0.6rem 0.6rem 0.1rem 0.6rem;"
+        >
+            <i class="fa-brands fa-weixin"></i>
+        </li>
+        <li class="weibo share-item border-box flex-center tooltip"
+            data-tooltip-content="Share to WeiBo"
+        >
+            <i class="fa-brands fa-weibo"></i>
+        </li>
+    </ul>
+</div>
+
+                        
+                    </div>
+                </div>
+
+                
+
+                
+                    <div class="post-nav border-box">
+                        
+                            <div class="prev-post">
+                                <a class="prev"
+                                   rel="prev"
+                                   href="/2024/10/21/2D-platform-jump/"
+                                   title="2D平台跳跃笔记"
+                                >
+                                    <span class="left arrow-icon flex-center">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </span>
+                                    <span class="title flex-center">
+                                        <span class="post-nav-title-item text-ellipsis">2D平台跳跃笔记</span>
+                                        <span class="post-nav-item">Prev posts</span>
+                                    </span>
+                                </a>
+                            </div>
+                        
+                        
+                    </div>
+                
+
+                
+                    
+
+
+
+
+
+
+                
+            </div>
+        </div>
+
+        
+            <div class="pc-post-toc right-toc">
+                <div class="post-toc-wrap border-box">
+    <div class="post-toc border-box">
+        <ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E5%BA%9F%E8%AF%9D"><span class="nav-text">一些废话</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#QFramework%E7%9A%84%E5%9F%BA%E7%A1%80%EF%BC%9AMVC%E6%9E%B6%E6%9E%84"><span class="nav-text">QFramework的基础：MVC架构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#QFramework%E7%9A%84Model"><span class="nav-text">QFramework的Model</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-IController"><span class="nav-text">1.IController</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E4%B8%BA%E4%BB%80%E4%B9%88this-GetModel-%E5%8F%AF%E4%BB%A5%E8%8E%B7%E5%8F%96Model"><span class="nav-text">2.为什么this.GetModel&lt;&gt;()可以获取Model</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Command"><span class="nav-text">Command</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Event"><span class="nav-text">Event</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Utility"><span class="nav-text">Utility</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#System"><span class="nav-text">System</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Query"><span class="nav-text">Query</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84%E7%9A%84%E8%A7%84%E5%88%99"><span class="nav-text">架构的规则</span></a></li></ol>
+    </div>
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+        </div>
+
+        <div class="page-main-content-bottom border-box">
+            
+<footer class="footer border-box">
+    <div class="copyright-info info-item">
+        &copy;&nbsp;<span>2024</span>&nbsp;-&nbsp;2024
+        
+            &nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;&nbsp;<a href="/">yangxu286</a>
+        
+    </div>
+
+    <div class="theme-info info-item">
+        Powered by&nbsp;<a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;&&nbsp;Theme&nbsp;<a class="keep-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep</a>
+    </div>
+
+    
+        
+        <div class="deploy-info info-item">
+            
+            This site is deployed on <span class="tooltip" data-tooltip-content="GitHub Pages"><img src="/images/brands/github.png"></span>
+            
+        </div>
+    
+
+    
+        <div class="count-info info-item">
+            
+                <span class="count-item border-box word">
+                    <span class="item-type border-box">Total words</span>
+                    <span class="item-value border-box word">9k</span>
+                </span>
+            
+
+            
+                <span class="count-item border-box uv">
+                    <span class="item-type border-box">Unique Visitor</span>
+                    <span class="item-value border-box uv" id="busuanzi_value_site_uv"></span>
+                </span>
+            
+
+            
+                <span class="count-item border-box pv">
+                    <span class="item-type border-box">Page View</span>
+                    <span class="item-value border-box pv" id="busuanzi_value_site_pv"></span>
+                </span>
+            
+        </div>
+    
+
+    
+</footer>
+
+        </div>
+    </div>
+
+    <!-- post tools -->
+    
+        <div class="post-tools right-toc">
+            <div class="post-tools-container border-box">
+    <ul class="post-tools-list border-box">
+        <!-- PC encrypt again -->
+        
+
+        <!-- PC TOC show toggle -->
+        
+            <li class="tools-item flex-center toggle-show-toc">
+                <i class="fas fa-list"></i>
+            </li>
+        
+
+        <!-- PC go comment -->
+        
+
+        <!-- PC full screen -->
+        <li class="tools-item flex-center full-screen">
+            <i class="fa-solid fa-expand"></i>
+        </li>
+    </ul>
+</div>
+
+        </div>
+    
+
+    <!-- side tools -->
+    <div class="side-tools">
+        <div class="side-tools-container border-box ">
+    <ul class="side-tools-list side-tools-show-handle border-box">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <!-- toggle mode -->
+        
+            <li class="tools-item tool-toggle-theme-mode flex-center">
+                <i class="fas fa-moon"></i>
+            </li>
+        
+
+        <!-- rss -->
+        
+
+        <!-- to bottom -->
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list border-box">
+        
+            <li class="tools-item toggle-show-toc-tablet flex-center">
+                <i class="fas fa-list"></i>
+            </li>
+        
+
+        
+
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+
+        <li class="tools-item tool-scroll-to-top flex-center show-arrow">
+            <i class="arrow fas fa-arrow-up"></i>
+            <span class="percent"></span>
+        </li>
+    </ul>
+</div>
+
+    </div>
+
+    <!-- image mask -->
+    <div class="zoom-in-image-mask">
+    <img class="zoom-in-image">
+</div>
+
+
+    <!-- local search -->
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="close-popup-btn">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+    <!-- tablet toc -->
+    
+        <div class="tablet-post-toc-mask">
+            <div class="tablet-post-toc">
+                <div class="post-toc-wrap border-box">
+    <div class="post-toc border-box">
+        <ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E5%BA%9F%E8%AF%9D"><span class="nav-text">一些废话</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#QFramework%E7%9A%84%E5%9F%BA%E7%A1%80%EF%BC%9AMVC%E6%9E%B6%E6%9E%84"><span class="nav-text">QFramework的基础：MVC架构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#QFramework%E7%9A%84Model"><span class="nav-text">QFramework的Model</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-IController"><span class="nav-text">1.IController</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E4%B8%BA%E4%BB%80%E4%B9%88this-GetModel-%E5%8F%AF%E4%BB%A5%E8%8E%B7%E5%8F%96Model"><span class="nav-text">2.为什么this.GetModel&lt;&gt;()可以获取Model</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Command"><span class="nav-text">Command</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Event"><span class="nav-text">Event</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Utility"><span class="nav-text">Utility</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#System"><span class="nav-text">System</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Query"><span class="nav-text">Query</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84%E7%9A%84%E8%A7%84%E5%88%99"><span class="nav-text">架构的规则</span></a></li></ol>
+    </div>
+</div>
+
+            </div>
+        </div>
+    
+</main>
+
+
+
+
+
+<!-- common js -->
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/toggle-theme.js"></script>
+
+<script src="/js/code-block.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+
+<!-- local search -->
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+<!-- lazyload -->
+
+    
+<script src="/js/lazyload.js"></script>
+
+
+
+<div class="pjax">
+    <!-- home page -->
+    
+
+    <!-- post page -->
+    
+        <!-- post-helper -->
+        
+<script src="/js/post/post-helper.js"></script>
+
+
+        <!-- toc -->
+        
+            
+<script src="/js/post/toc.js"></script>
+
+        
+
+        <!-- copyright-info -->
+        
+            
+<script src="/js/post/copyright-info.js"></script>
+
+        
+
+        <!-- share -->
+        
+            
+<script src="/js/post/share.js"></script>
+
+        
+    
+
+    <!-- categories page -->
+    
+
+    <!-- links page -->
+    
+
+    <!-- photos page -->
+    
+
+    <!-- tools page -->
+    
+</div>
+
+<!-- mermaid -->
+
+
+<!-- pjax -->
+
+    
+<script src="/js/libs/pjax.min.js"></script>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart()
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd()
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'))
+            KEEP.initExecute()
+        });
+    });
+</script>
+
+
+
+
+</body>
+</html>
