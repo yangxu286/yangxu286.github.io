@@ -393,4 +393,112 @@
         <tag>Linux</tag>
       </tags>
   </entry>
+  <entry>
+    <title>ICS CSAPP第一章笔记</title>
+    <url>/2024/10/23/CSAPP-chapter1/</url>
+    <content><![CDATA[<h3 id="ICS-CSAPP第一章笔记"><a href="#ICS-CSAPP第一章笔记" class="headerlink" title="ICS CSAPP第一章笔记"></a>ICS CSAPP第一章笔记</h3><h4 id="From-Source-File-to-Executable-Object-File"><a href="#From-Source-File-to-Executable-Object-File" class="headerlink" title="From Source File to Executable Object File"></a>From Source File to Executable Object File</h4><ul>
+<li><em>Preprocessing phase</em> in which the preprocessor(预处理器,<code>cpp</code>) modifies the original C program according to directives(命令) that begin with the ‘#’ character(<code>#include &lt;stdio.h&gt;</code>,etc.).The result is typically with the <code>.i</code> suffix.</li>
+<li><em>Compilation phase</em> in which the compiler(编译器,<code>cc1</code>)translates the text file into another text file with the <code>.s</code> suffix,which contains an <em>assembly-language program</em>(汇编语言程序).Assembly language is a common output language for different compilers for different high-level languages.</li>
+<li><em>Assembly phase</em> in which the assembler(汇编器,<code>as</code>)translates the <code>.s</code> file into machine-language instructions,packages them in <em>relocatable object program</em>(可重定位目标程序) form,and stores it in the object file with the <code>.o</code> suffix.This file is a binary file.</li>
+<li><em>Linking phase</em> in which the linker(链接器,<code>ld</code>) merges other object file if needed,<code>printf.o</code> for example.The resule is an executable object program(or simply executable).</li>
+</ul>
+<h4 id="Hardware-organization-of-a-system"><a href="#Hardware-organization-of-a-system" class="headerlink" title="Hardware organization of a system"></a>Hardware organization of a system</h4><ul>
+<li>Buses(总线) is a collection of exectrical conduits(管道) that transfers fixed-size chunks of bytes known as <em>words</em>(字) between the components.<ul>
+<li>The number of bytes in a word(字中的字节数) is called the <em>word size</em>(字长),which is a fundamental system parameter that varies across systems.4 bytes(32 bits) or 8 bytes(64 bits) is common nowadays.</li>
+</ul>
+</li>
+<li>I&#x2F;O devices<ul>
+<li>Disks are also I&#x2F;O devices.</li>
+<li>I&#x2F;O devices are connected to the I&#x2F;O bus by either a <em>controller</em>(控制器) or an <em>adapter</em>(适配器).</li>
+</ul>
+</li>
+<li>Main memory(主存)<ul>
+<li>temporarily holds both a program and the data it manipulates <em>while</em> the processor is executing the program.</li>
+<li>Logically,memory is organized as a linear array of bytes.</li>
+</ul>
+</li>
+<li>The central processing unit(CPU)<ul>
+<li>Core:The <em>program counter</em>(PC), which is a word-size(一个字大小) storage device&#x2F;<em>register</em>(寄存器).It points at some machine-language instruction in main memory.The processor repeatedly executes the instruction pointed at by it,then updates it to point to the next instruction.</li>
+<li>We can regard the operation of a processor as a simplified model,defined by its <em>instruction set architecture</em>(指令集架构,如x86,ARM).Different processors will implement the same instruction set architecture differently,or have different <em>microarchitecture</em>s(微架构).</li>
+<li>Component:The <em>register file</em> is a small storage device that consists of a collection of word-size registers,each with its own unique name.</li>
+</ul>
+</li>
+</ul>
+<h4 id="Running-the-hello-Program"><a href="#Running-the-hello-Program" class="headerlink" title="Running the hello Program"></a>Running the hello Program</h4><ul>
+<li>When we type <code>./hello</code>,the shell program reads each one into a register and stores it in main memory.</li>
+<li>When we hit the <code>enter</code> key,the shell loads(including copying the code and data) the executable <code>hello</code> file from the disk to main memory using a technique known as <em>direct memory access</em>(直接存储器存取,DMA),which makes this process without passing through the processor.</li>
+<li>Once the code and data in the <code>hello</code> object file are loaded into memory,the processor begins executing the machine-languages instructions in the <code>hello</code> program’s <code>main</code> routine.</li>
+<li>To display the <code>hello, world\n</code> string,these instructions copy the bytes from memory to the register file,and from there to the display device.</li>
+</ul>
+<h4 id="The-Necessity-of-Cache-Memories-高速缓存"><a href="#The-Necessity-of-Cache-Memories-高速缓存" class="headerlink" title="The Necessity of Cache Memories(高速缓存)"></a>The Necessity of <em>Cache Memories</em>(高速缓存)</h4><p>Cache memories serves as temporary staging areas for information that the processor is likely to need in the near future.Since loading files from main memory takes much more time than from register,and the copy operations are which actually slows down the “real work” of the program,cache memories can accumulate infomations and exploit <em>locality</em> to hasten operations.</p>
+<h4 id="Storage-Devices-Form-a-Hierarchy"><a href="#Storage-Devices-Form-a-Hierarchy" class="headerlink" title="Storage Devices Form a Hierarchy"></a>Storage Devices Form a Hierarchy</h4><p>The smaller,faster storage devices are on higher levels and the larger,slower devices are on lower levels.The main idea of a memory hierarchy is that storage at one level serves as a cache for storage at the next lower level.</p>
+<h4 id="The-Operating-System"><a href="#The-Operating-System" class="headerlink" title="The Operating System"></a>The Operating System</h4><p>The operating system manages the hardware via some fundamental abstractions of the hardware devices.</p>
+<h5 id="Processes-进程"><a href="#Processes-进程" class="headerlink" title="Processes(进程)"></a>Processes(进程)</h5><p>A process is the operating system’s abstraction for a running program.</p>
+<p>Multiple processes appear to be running concurrently on the same system.Yet in fact,for a single CPU,it appears to execute multiple processes by having the processor switch among them,known as <em>context switching</em>(上下文切换).</p>
+<p>The operating system holds <em>context</em>(上下文),including informations that the process needs in order to run,such as the current values of the PC,the register file and the contents of the main memory.When the operating system performs a <em>context switch</em>,it saves the context of the current process,restores the context of the new process,and passes control to the new process.This series of operations is activated by invoking a special function known as a <em>system call</em>(系统调用).</p>
+<blockquote>
+<p>The <strong>Kernal</strong>(内核) is the portion of the operating system code that is always resident in memory.One of its functions is managing the transition from one process to another.The kernal is a collection of code and data structures that the system uses to manage all the processes.</p>
+</blockquote>
+<h5 id="Threads-线程"><a href="#Threads-线程" class="headerlink" title="Threads(线程)"></a>Threads(线程)</h5><p>Threads are the units of execution that make up a process.They run in the context of the process,sharing the same code and global data.</p>
+<ul>
+<li>It’s easier to share data between multiple threads then between multiple processes.</li>
+<li>Threads are typically more efficient than processes.</li>
+</ul>
+<h5 id="Virtual-Memory-虚拟内存"><a href="#Virtual-Memory-虚拟内存" class="headerlink" title="Virtual Memory(虚拟内存)"></a>Virtual Memory(虚拟内存)</h5><p>Virtual memory provides each process with the illusion that it has exclusive use of the main memory.The same uniform view of memory each process holds is known as its <em>virtual address space</em>(虚拟地址空间).</p>
+<p>The virtual address space consists of a number of well defined areas,each with a specific purpose.</p>
+<ul>
+<li><em>Program code and data</em>,initialized directly from the contents of an executable object file.We have mentioned this operation before.</li>
+<li><em>Heap</em>.The memory area of a process.The heap expands and contracts dynamically at run time as a result of calls to C standard library routines such as <code>malloc</code> and <code>free</code>.</li>
+<li><em>Shared libraries</em>,such as the C standard library and the math library.</li>
+<li><em>Stack</em> that the compiler uses to implement function calls.It grows when we call a function and contracts when we return from a function.</li>
+<li><em>Kernal virtual memory</em>(内核虚拟内存) whose contents are not allowed to be read or written by application programs.Instead,they must invoke the kernal.</li>
+</ul>
+<p>Physically,the basic idea to implement virtual memory is to store the contents of a process’s virtual memory on disk,then use the main memory as a cache for the disk.</p>
+<h5 id="Files-文件"><a href="#Files-文件" class="headerlink" title="Files(文件)"></a>Files(文件)</h5><p>A file is just a sequence of bytes.Every I&#x2F;O device is modeled as a file.</p>
+<h4 id="Communicate-with-Other-Systems-Using-Networks"><a href="#Communicate-with-Other-Systems-Using-Networks" class="headerlink" title="Communicate with Other Systems Using Networks"></a>Communicate with Other Systems Using Networks</h4><p>The network can be viewed as just another I&#x2F;O device.</p>
+<p><img  
+                       lazyload
+                       alt="image"
+                       data-src="C:\Users\L\Downloads\微信图片_20241023185002.jpg"
+                       
+                 ></p>
+<h4 id="Amdahl’s-Law"><a href="#Amdahl’s-Law" class="headerlink" title="Amdahl’s Law"></a>Amdahl’s Law</h4><p>A formula that describes the acceleration effect of a component on the entire system.<br>$$<br>S &#x3D; \frac{1}{(1 - \alpha) + \alpha&#x2F;k}<br>$$</p>
+<p>$\alpha$ is the fraction of time the component of the system requires.</p>
+<p>$k$ is the factor we improved its performance by.</p>
+<p>$S$ is the speedup $T_{old}&#x2F;T_{new}$.</p>
+<p>Insight:to significantly speed up the entire system,we must improve the speed of a very large fraction of the overall system.</p>
+<h4 id="Concurrency-and-Parallelism"><a href="#Concurrency-and-Parallelism" class="headerlink" title="Concurrency and Parallelism"></a>Concurrency and Parallelism</h4><p>Concurrency(并行):The word makes a general reference to a system with multiple,simultaneous activities.</p>
+<p>Parallelism(并发):It refers to the use of concurrency to make a system run faster.</p>
+<h5 id="Thread-Level-Concurrency"><a href="#Thread-Level-Concurrency" class="headerlink" title="Thread-Level Concurrency"></a>Thread-Level Concurrency</h5><ul>
+<li><em>Multi-core</em> processors have several CPUs(“cores”) integrated onto a single integrated-circuit chip(集成电路芯片).</li>
+<li><em>Hyperthreading</em> involves having multiple copies of some of the CPU hardware,such as PC and register files,while having only single copies of the other parts,arithmetic parts for example.<ul>
+<li>Decides which of its threads to execute on a cycle-by-cycle basis</li>
+</ul>
+</li>
+</ul>
+<h5 id="Instruction-Level-Parallelism"><a href="#Instruction-Level-Parallelism" class="headerlink" title="Instruction-Level Parallelism"></a>Instruction-Level Parallelism</h5><p>Modern processors can execute multiple instructions at one time.</p>
+<p><em>Superscalar</em>(超标量) processors are processors that can sustain execution rates faster than 1 instruction per cycle.</p>
+<h5 id="Single-Instruction-Multiple-Data-SIMD-Parallelism"><a href="#Single-Instruction-Multiple-Data-SIMD-Parallelism" class="headerlink" title="Single-Instruction,Multiple-Data(SIMD) Parallelism"></a>Single-Instruction,Multiple-Data(SIMD) Parallelism</h5><p>Many modern processors have special hardware that allows a single instruction to cause multiple operations to be performed in parallel,a mode known as SIMD.SIMD instructions are provided mostly to speed up image,sound and video data processing.</p>
+<h4 id="Abstraction"><a href="#Abstraction" class="headerlink" title="Abstraction"></a>Abstraction</h4><p><img  
+                       lazyload
+                       alt="image"
+                       data-src="C:\Users\L\Downloads\微信图片_20241023200459.jpg"
+                       
+                 ></p>
+<h4 id="其他概念-生词"><a href="#其他概念-生词" class="headerlink" title="其他概念&#x2F;生词"></a>其他概念&#x2F;生词</h4><ul>
+<li>compiler driver(编译器驱动程序)</li>
+<li>uniprocessor system(单处理器系统)</li>
+<li>multiprocessor system(多处理器系统)</li>
+<li>gibberish(乱码)</li>
+<li>prompt(提示符)</li>
+</ul>
+]]></content>
+      <categories>
+        <category>ICS</category>
+      </categories>
+      <tags>
+        <tag>ICS</tag>
+        <tag>CSAPP</tag>
+      </tags>
+  </entry>
 </search>

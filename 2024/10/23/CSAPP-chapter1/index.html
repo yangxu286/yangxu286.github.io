@@ -9,7 +9,7 @@
     
     <title>
         
-            ICS Linux知识整理(1) |
+            ICS CSAPP第一章笔记 |
         
         yangxu286
     </title>
@@ -214,7 +214,7 @@
             <div class="post-content-bottom border-box">
                 
                     <div class="post-title">
-                        ICS Linux知识整理(1)
+                        ICS CSAPP第一章笔记
                     </div>
                 
 
@@ -242,12 +242,12 @@
         
             <span class="meta-info-item post-create-date">
                 <i class="icon fa-solid fa-calendar-plus"></i>&nbsp;
-                <span class="datetime">2024-10-21 13:52:39</span>
+                <span class="datetime">2024-10-23 12:52:49</span>
             </span>
 
             <span class="meta-info-item post-update-date">
                 <i class="icon fa-solid fa-file-pen"></i>&nbsp;
-                <span class="datetime" data-updated="Mon Oct 21 2024 13:54:43 GMT+0800">2024-10-21 13:54:43</span>
+                <span class="datetime" data-updated="Wed Oct 23 2024 20:08:03 GMT+0800">2024-10-23 20:08:03</span>
             </span>
         
 
@@ -269,7 +269,7 @@
                             <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/ICS/">ICS</a></li>
                         
                     
-                            <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/Linux/">Linux</a></li>
+                            <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/CSAPP/">CSAPP</a></li>
                         
                     
                 </ul>
@@ -279,12 +279,12 @@
         
         
             <span class="meta-info-item post-wordcount">
-                <i class="icon fas fa-file-word"></i>&nbsp;<span>1.6k Words</span>
+                <i class="icon fas fa-file-word"></i>&nbsp;<span>1.5k Words</span>
             </span>
         
         
             <span class="meta-info-item post-min2read">
-                <i class="icon fas fa-clock"></i>&nbsp;<span>6 Mins</span>
+                <i class="icon fas fa-clock"></i>&nbsp;<span>8 Mins</span>
             </span>
         
         
@@ -306,67 +306,102 @@
                     
 
                     
-                         <p>注：自用向课堂笔记。</p>
-<h5 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h5><p>image（镜像）：相当于环境配置数据。<br>container（容器）：镜像的实例，一个孤立的系统。</p>
-<ul>
-<li>image可以通过dockerfile + docker build创建。</li>
-<li>创建了一个image后，便可以创建新的container并运行。使用如下指令：<br>-<code>docker build -t &lt;image-tag-name&gt; &lt;dockerfile-path&gt;</code></li>
-<li>可以用docker start，docker stop，docker rm等命令控制container的运行。<br><code>docker images</code> or <code>docker image list</code>: 列出你系统里所有的image。</li>
+                         <h3 id="ICS-CSAPP第一章笔记"><a href="#ICS-CSAPP第一章笔记" class="headerlink" title="ICS CSAPP第一章笔记"></a>ICS CSAPP第一章笔记</h3><h4 id="From-Source-File-to-Executable-Object-File"><a href="#From-Source-File-to-Executable-Object-File" class="headerlink" title="From Source File to Executable Object File"></a>From Source File to Executable Object File</h4><ul>
+<li><em>Preprocessing phase</em> in which the preprocessor(预处理器,<code>cpp</code>) modifies the original C program according to directives(命令) that begin with the ‘#’ character(<code>#include &lt;stdio.h&gt;</code>,etc.).The result is typically with the <code>.i</code> suffix.</li>
+<li><em>Compilation phase</em> in which the compiler(编译器,<code>cc1</code>)translates the text file into another text file with the <code>.s</code> suffix,which contains an <em>assembly-language program</em>(汇编语言程序).Assembly language is a common output language for different compilers for different high-level languages.</li>
+<li><em>Assembly phase</em> in which the assembler(汇编器,<code>as</code>)translates the <code>.s</code> file into machine-language instructions,packages them in <em>relocatable object program</em>(可重定位目标程序) form,and stores it in the object file with the <code>.o</code> suffix.This file is a binary file.</li>
+<li><em>Linking phase</em> in which the linker(链接器,<code>ld</code>) merges other object file if needed,<code>printf.o</code> for example.The resule is an executable object program(or simply executable).</li>
 </ul>
-<ul>
-<li><code>docker run</code>: 在一个image的基础上运行container。</li>
-<li><code>docker ps</code>: 列出正在运行的container。</li>
-<li><code>docker stop &lt;container-id-or-name&gt;</code>: 停止一个container。</li>
-<li><code>docker rm &lt;container-id-or-name&gt;</code>: 移除某个已停止的container。</li>
+<h4 id="Hardware-organization-of-a-system"><a href="#Hardware-organization-of-a-system" class="headerlink" title="Hardware organization of a system"></a>Hardware organization of a system</h4><ul>
+<li>Buses(总线) is a collection of exectrical conduits(管道) that transfers fixed-size chunks of bytes known as <em>words</em>(字) between the components.<ul>
+<li>The number of bytes in a word(字中的字节数) is called the <em>word size</em>(字长),which is a fundamental system parameter that varies across systems.4 bytes(32 bits) or 8 bytes(64 bits) is common nowadays.</li>
 </ul>
-<h4 id="一大波命令正在来袭"><a href="#一大波命令正在来袭" class="headerlink" title="一大波命令正在来袭"></a>一大波命令正在来袭</h4><h5 id="如何进入容器"><a href="#如何进入容器" class="headerlink" title="如何进入容器"></a>如何进入容器</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker start my-linux</span><br><span class="line">docker exec -it my-linux /bin/bash</span><br><span class="line"></span><br><span class="line">### 建议使用ics用户，而不是root用户</span><br><span class="line">### 故在Linux Shell里面继续执行如下命令，切换用户身份（从root到ics）</span><br><span class="line">su - ics</span><br></pre></td></tr></table></figure>
-<h5 id="ls与长列表格式"><a href="#ls与长列表格式" class="headerlink" title="ls与长列表格式"></a>ls与长列表格式</h5><p><code>ls</code>：查看目前工作路径下的所有内容。<br>具体命令语法：<code>ls [选项] [目录|文件]</code><br>若想进一步了解，可使用 <code>ls --help</code>查看详情。如：<code>ls -l</code>会使用长列表格式进行输出。如下面这种：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">total 8</span><br><span class="line">-rw-rw-r-- 1 ics ics    0 Oct  8 09:11 bar</span><br><span class="line">drwxrwxr-x 2 ics ics 4096 Oct  8 09:11 baz</span><br><span class="line">-rwxrw-r-- 1 ics ics    0 Oct  8 09:22 echo.sh</span><br><span class="line">-rw-rw-r-- 1 ics ics    6 Oct  8 09:11 foo</span><br></pre></td></tr></table></figure>
-<p><code>total 8</code>：以下所有文件大小总和为8。使用<code>ls -lh</code>可以将它输出为人类可读形式：8.0K。<br>第一列第一个字母是文件类型。</p>
-<table>
-<thead>
-<tr>
-<th>符号</th>
-<th>类型</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>-</td>
-<td>普通文件</td>
-</tr>
-<tr>
-<td>d</td>
-<td>目录文件</td>
-</tr>
-<tr>
-<td>b</td>
-<td>块设备文件（block）</td>
-</tr>
-<tr>
-<td>c</td>
-<td>字符设备文件（character）</td>
-</tr>
-<tr>
-<td>l</td>
-<td>符号链接文件</td>
-</tr>
-<tr>
-<td>p</td>
-<td>命令管道文件（pipe）</td>
-</tr>
-<tr>
-<td>s</td>
-<td>套接字文件（socket）</td>
-</tr>
-</tbody></table>
-<p>后面的九个字母是一系列权限，每三个字母为一组，分别为所有者权限、组用户权限、其他用户权限。r、w、x分别为读、写、执行，有则有，无则为-。<br><code>chmod</code>可以修改这个权限。如<code>chmod ugo+r file1.txt/chmod a+r file1.txt</code>将file1.txt设为所有人皆可读取。<br>第二列到最后一列分别为链接数（或子目录数）、文件的用户所有者、文件的组群所有者、文件的长度（单位是字节，不是磁盘占用量）、最近更新时间、文件名。<br><code>chown</code>可以修改文件用户所有者，如<code>chown -R ics wget.sh</code>。<code>-R</code>（注意大写）选项表示连同子目录中的所有文件，都更改所有者。<br>此外，<code>ls -S</code>会将文件大小从大到小排序。</p>
-<h5 id="基本操作（杂）"><a href="#基本操作（杂）" class="headerlink" title="基本操作（杂）"></a>基本操作（杂）</h5><p><code>pwd</code>：输出绝对工作路径。print working directory<br><code>cd</code>：进入你输入的工作路径。change directory<br><code>~</code>：家目录，分配给每个用户的个人目录，大概率以用户名命名（不是&#x2F;home）。<br><code>.</code>：当前路径。<br><code>..</code>：父路径。<br><code>/</code>：根目录。<br><code>echo</code>：复读后面的字符串。若加<code>-e</code>可开启转义，这时输入<code>\n</code>就能换行了。<br><code>top</code>：输出linux进程。进入top界面后，按q退出，按h获取帮助。top界面太复杂，这边暂时先不讲。<br><code>ps</code>：显示当前进程的状态。其参数同样非常多。<br><code>cp &lt;source&gt; &lt;destination&gt;</code>：复制。<br><code>mv &lt;source&gt; &lt;destination&gt;</code>：移动和重命名。<br><code>rm &lt;filename&gt;</code>：删除文件。<br><code>rmdir &lt;directory&gt;</code>：删除空文件夹&#x2F;路径。<br><code>mkdir &lt;directory&gt;</code>：新建路径。<br><code>touch &lt;file&gt;</code>：创建空文件。<br><code>cat</code>：暂时还不太懂。见<a class="link"   target="_blank" rel="noopener" href="https://www.runoob.com/linux/linux-comm-cat.html" >Linux cat 命令 | 菜鸟教程 (runoob.com)<i class="fas fa-external-link-alt"></i></a><br><code>sort</code>：将文本文件按行排序。<code>-d</code>：字典序。<code>-n</code>：数字序。<code>-r</code>：反序。<br>如命令<code>sort -k 2n xxx.txt</code>，<code>-k</code>表示使用key排序，后面的<code>2n</code>定义了key：第二列，数字序。<br><code>head/tail</code>：输出最前或最后几行。<br>默认为10行，但若加<code>-n</code>则可自定义，如输入<code>head -n 2 xxx.txt</code>，则会输出2行。<br><code>nl xxx.text</code>：带行号地输出。</p>
-<p>获取帮助的两种方式：<code>man &lt;command&gt;</code>或在命令后面加<code>--help</code>或<code>-h</code>。</p>
-<p><code>sudo</code>：让一个用户暂时获得root权限来做下面的事（不要轻易使用）。<br><code>|</code>（pipe）：可以连接命令，让前一个的输出作为后一个的输入。<br><code>grep</code>：查找含有某正则表达式的行。<br>如<code>grep -in this *</code>将在路径下的所有文件中不区别大小写地找含有this的行，且在输出的时候显示行号。<br>可以使用<code>&amp;&amp;</code>在同一行内切换目录。</p>
-<h5 id="执行命令提示command-not-found怎么办"><a href="#执行命令提示command-not-found怎么办" class="headerlink" title="执行命令提示command not found怎么办"></a>执行命令提示command not found怎么办</h5><p>自然是找到命令所在的包。许多命令所在的包名和命令名是一样的。对于不一样的，可以上这个网站查询：<a class="link"   target="_blank" rel="noopener" href="https://command-not-found.com/" >command-not-found.com<i class="fas fa-external-link-alt"></i></a><br>找到了怎么办？<br><code>apt [options] [command] [package ...]</code><br>安装包：<code>sudo apt install &lt;package_name&gt;</code><br>具体查看：<a class="link"   target="_blank" rel="noopener" href="https://www.runoob.com/linux/linux-comm-apt.html" >Linux apt 命令 | 菜鸟教程 (runoob.com)<i class="fas fa-external-link-alt"></i></a></p>
-<h5 id="重定向输入输出流"><a href="#重定向输入输出流" class="headerlink" title="重定向输入输出流"></a>重定向输入输出流</h5><p><code>command &lt; file.txt</code>：指令的输入将从file.txt读取。<br><code>command &gt; file.txt</code>：指令的输出将输出到file.txt并覆盖原有内容。<br><code>command &gt;&gt; file.txt</code>：指令将追加到file.txt后面。<br><code>command 2&gt; file.txt</code>：将标准错误输出到file.txt，标准输出不影响。<br><code>command &amp;&gt; file.txt</code>：将命令的标准输出和标准错误同时重定向到 file.txt。这里的 <code>&amp;&gt;</code> 是一个语法糖，等同于 <code>command &gt; file.txt 2&gt;&amp;1</code>。</p>
-<h5 id="awk"><a href="#awk" class="headerlink" title="awk"></a>awk</h5><p><code>awk</code> 是一个强大的文本分析工具，可在后方执行简单的脚本。</p>
-<h5 id="sed"><a href="#sed" class="headerlink" title="sed"></a>sed</h5><p>sed命令利用脚本来处理文本文件。不过，这些处理并不会实际更改文件，而是把改后的内容输出到终端。若要修改文件，加上<code>-i</code>。<br>首先，在sed后面输入的指令部分（不是选项，不是<code>-e</code> <code>-f</code>之类的）一定是用单引号括起来的。<br><code>sed &#39;s/old/new/g&#39; file</code>：查找到所有的old并替换成new。<br><code>sed &#39;3 s/old/new/&#39; file</code>：查找到第3行第一个old并替换成new。<br><code>sed &#39;3d&#39; file</code>：删除第3行。<br><code>sed -n &#39;3p&#39; file</code>：输出第3行。<code>-n</code>表示不输出处理后的结果，此处如果不去掉会输出整个文件，且把第3行输出2次。<br><code>sed &#39;2i\This is a new line&#39; file</code>：在第2行前面加上这一行。<br><code>sed &#39;2a\This is a new line&#39; file</code>：在第2行后面加上这一行。</p>
+</li>
+<li>I&#x2F;O devices<ul>
+<li>Disks are also I&#x2F;O devices.</li>
+<li>I&#x2F;O devices are connected to the I&#x2F;O bus by either a <em>controller</em>(控制器) or an <em>adapter</em>(适配器).</li>
+</ul>
+</li>
+<li>Main memory(主存)<ul>
+<li>temporarily holds both a program and the data it manipulates <em>while</em> the processor is executing the program.</li>
+<li>Logically,memory is organized as a linear array of bytes.</li>
+</ul>
+</li>
+<li>The central processing unit(CPU)<ul>
+<li>Core:The <em>program counter</em>(PC), which is a word-size(一个字大小) storage device&#x2F;<em>register</em>(寄存器).It points at some machine-language instruction in main memory.The processor repeatedly executes the instruction pointed at by it,then updates it to point to the next instruction.</li>
+<li>We can regard the operation of a processor as a simplified model,defined by its <em>instruction set architecture</em>(指令集架构,如x86,ARM).Different processors will implement the same instruction set architecture differently,or have different <em>microarchitecture</em>s(微架构).</li>
+<li>Component:The <em>register file</em> is a small storage device that consists of a collection of word-size registers,each with its own unique name.</li>
+</ul>
+</li>
+</ul>
+<h4 id="Running-the-hello-Program"><a href="#Running-the-hello-Program" class="headerlink" title="Running the hello Program"></a>Running the hello Program</h4><ul>
+<li>When we type <code>./hello</code>,the shell program reads each one into a register and stores it in main memory.</li>
+<li>When we hit the <code>enter</code> key,the shell loads(including copying the code and data) the executable <code>hello</code> file from the disk to main memory using a technique known as <em>direct memory access</em>(直接存储器存取,DMA),which makes this process without passing through the processor.</li>
+<li>Once the code and data in the <code>hello</code> object file are loaded into memory,the processor begins executing the machine-languages instructions in the <code>hello</code> program’s <code>main</code> routine.</li>
+<li>To display the <code>hello, world\n</code> string,these instructions copy the bytes from memory to the register file,and from there to the display device.</li>
+</ul>
+<h4 id="The-Necessity-of-Cache-Memories-高速缓存"><a href="#The-Necessity-of-Cache-Memories-高速缓存" class="headerlink" title="The Necessity of Cache Memories(高速缓存)"></a>The Necessity of <em>Cache Memories</em>(高速缓存)</h4><p>Cache memories serves as temporary staging areas for information that the processor is likely to need in the near future.Since loading files from main memory takes much more time than from register,and the copy operations are which actually slows down the “real work” of the program,cache memories can accumulate infomations and exploit <em>locality</em> to hasten operations.</p>
+<h4 id="Storage-Devices-Form-a-Hierarchy"><a href="#Storage-Devices-Form-a-Hierarchy" class="headerlink" title="Storage Devices Form a Hierarchy"></a>Storage Devices Form a Hierarchy</h4><p>The smaller,faster storage devices are on higher levels and the larger,slower devices are on lower levels.The main idea of a memory hierarchy is that storage at one level serves as a cache for storage at the next lower level.</p>
+<h4 id="The-Operating-System"><a href="#The-Operating-System" class="headerlink" title="The Operating System"></a>The Operating System</h4><p>The operating system manages the hardware via some fundamental abstractions of the hardware devices.</p>
+<h5 id="Processes-进程"><a href="#Processes-进程" class="headerlink" title="Processes(进程)"></a>Processes(进程)</h5><p>A process is the operating system’s abstraction for a running program.</p>
+<p>Multiple processes appear to be running concurrently on the same system.Yet in fact,for a single CPU,it appears to execute multiple processes by having the processor switch among them,known as <em>context switching</em>(上下文切换).</p>
+<p>The operating system holds <em>context</em>(上下文),including informations that the process needs in order to run,such as the current values of the PC,the register file and the contents of the main memory.When the operating system performs a <em>context switch</em>,it saves the context of the current process,restores the context of the new process,and passes control to the new process.This series of operations is activated by invoking a special function known as a <em>system call</em>(系统调用).</p>
+<blockquote>
+<p>The <strong>Kernal</strong>(内核) is the portion of the operating system code that is always resident in memory.One of its functions is managing the transition from one process to another.The kernal is a collection of code and data structures that the system uses to manage all the processes.</p>
+</blockquote>
+<h5 id="Threads-线程"><a href="#Threads-线程" class="headerlink" title="Threads(线程)"></a>Threads(线程)</h5><p>Threads are the units of execution that make up a process.They run in the context of the process,sharing the same code and global data.</p>
+<ul>
+<li>It’s easier to share data between multiple threads then between multiple processes.</li>
+<li>Threads are typically more efficient than processes.</li>
+</ul>
+<h5 id="Virtual-Memory-虚拟内存"><a href="#Virtual-Memory-虚拟内存" class="headerlink" title="Virtual Memory(虚拟内存)"></a>Virtual Memory(虚拟内存)</h5><p>Virtual memory provides each process with the illusion that it has exclusive use of the main memory.The same uniform view of memory each process holds is known as its <em>virtual address space</em>(虚拟地址空间).</p>
+<p>The virtual address space consists of a number of well defined areas,each with a specific purpose.</p>
+<ul>
+<li><em>Program code and data</em>,initialized directly from the contents of an executable object file.We have mentioned this operation before.</li>
+<li><em>Heap</em>.The memory area of a process.The heap expands and contracts dynamically at run time as a result of calls to C standard library routines such as <code>malloc</code> and <code>free</code>.</li>
+<li><em>Shared libraries</em>,such as the C standard library and the math library.</li>
+<li><em>Stack</em> that the compiler uses to implement function calls.It grows when we call a function and contracts when we return from a function.</li>
+<li><em>Kernal virtual memory</em>(内核虚拟内存) whose contents are not allowed to be read or written by application programs.Instead,they must invoke the kernal.</li>
+</ul>
+<p>Physically,the basic idea to implement virtual memory is to store the contents of a process’s virtual memory on disk,then use the main memory as a cache for the disk.</p>
+<h5 id="Files-文件"><a href="#Files-文件" class="headerlink" title="Files(文件)"></a>Files(文件)</h5><p>A file is just a sequence of bytes.Every I&#x2F;O device is modeled as a file.</p>
+<h4 id="Communicate-with-Other-Systems-Using-Networks"><a href="#Communicate-with-Other-Systems-Using-Networks" class="headerlink" title="Communicate with Other Systems Using Networks"></a>Communicate with Other Systems Using Networks</h4><p>The network can be viewed as just another I&#x2F;O device.</p>
+<p><img  
+                       lazyload
+                       alt="image"
+                       data-src="C:\Users\L\Downloads\微信图片_20241023185002.jpg"
+                       
+                 ></p>
+<h4 id="Amdahl’s-Law"><a href="#Amdahl’s-Law" class="headerlink" title="Amdahl’s Law"></a>Amdahl’s Law</h4><p>A formula that describes the acceleration effect of a component on the entire system.<br>$$<br>S &#x3D; \frac{1}{(1 - \alpha) + \alpha&#x2F;k}<br>$$</p>
+<p>$\alpha$ is the fraction of time the component of the system requires.</p>
+<p>$k$ is the factor we improved its performance by.</p>
+<p>$S$ is the speedup $T_{old}&#x2F;T_{new}$.</p>
+<p>Insight:to significantly speed up the entire system,we must improve the speed of a very large fraction of the overall system.</p>
+<h4 id="Concurrency-and-Parallelism"><a href="#Concurrency-and-Parallelism" class="headerlink" title="Concurrency and Parallelism"></a>Concurrency and Parallelism</h4><p>Concurrency(并行):The word makes a general reference to a system with multiple,simultaneous activities.</p>
+<p>Parallelism(并发):It refers to the use of concurrency to make a system run faster.</p>
+<h5 id="Thread-Level-Concurrency"><a href="#Thread-Level-Concurrency" class="headerlink" title="Thread-Level Concurrency"></a>Thread-Level Concurrency</h5><ul>
+<li><em>Multi-core</em> processors have several CPUs(“cores”) integrated onto a single integrated-circuit chip(集成电路芯片).</li>
+<li><em>Hyperthreading</em> involves having multiple copies of some of the CPU hardware,such as PC and register files,while having only single copies of the other parts,arithmetic parts for example.<ul>
+<li>Decides which of its threads to execute on a cycle-by-cycle basis</li>
+</ul>
+</li>
+</ul>
+<h5 id="Instruction-Level-Parallelism"><a href="#Instruction-Level-Parallelism" class="headerlink" title="Instruction-Level Parallelism"></a>Instruction-Level Parallelism</h5><p>Modern processors can execute multiple instructions at one time.</p>
+<p><em>Superscalar</em>(超标量) processors are processors that can sustain execution rates faster than 1 instruction per cycle.</p>
+<h5 id="Single-Instruction-Multiple-Data-SIMD-Parallelism"><a href="#Single-Instruction-Multiple-Data-SIMD-Parallelism" class="headerlink" title="Single-Instruction,Multiple-Data(SIMD) Parallelism"></a>Single-Instruction,Multiple-Data(SIMD) Parallelism</h5><p>Many modern processors have special hardware that allows a single instruction to cause multiple operations to be performed in parallel,a mode known as SIMD.SIMD instructions are provided mostly to speed up image,sound and video data processing.</p>
+<h4 id="Abstraction"><a href="#Abstraction" class="headerlink" title="Abstraction"></a>Abstraction</h4><p><img  
+                       lazyload
+                       alt="image"
+                       data-src="C:\Users\L\Downloads\微信图片_20241023200459.jpg"
+                       
+                 ></p>
+<h4 id="其他概念-生词"><a href="#其他概念-生词" class="headerlink" title="其他概念&#x2F;生词"></a>其他概念&#x2F;生词</h4><ul>
+<li>compiler driver(编译器驱动程序)</li>
+<li>uniprocessor system(单处理器系统)</li>
+<li>multiprocessor system(多处理器系统)</li>
+<li>gibberish(乱码)</li>
+<li>prompt(提示符)</li>
+</ul>
 
                     
                 </div>
@@ -377,11 +412,11 @@
     <div class="copyright-info-content border-box">
         <div class="copyright-info-top border-box">
             <div class="copyright-post-title border-box text-ellipsis">
-                ICS Linux知识整理(1)
+                ICS CSAPP第一章笔记
             </div>
 
             <div class="copyright-post-link border-box text-ellipsis">
-                2024/10/21/ICS-linux-1/
+                2024/10/23/CSAPP-chapter1/
             </div>
         </div>
 
@@ -397,7 +432,7 @@
                 <div class="type">
                     Published
                 </div>
-                <div class="content">2024-10-21 13:52</div>
+                <div class="content">2024-10-23 12:52</div>
             </div>
 
 
@@ -437,7 +472,7 @@
                                     </li>
                                 
                                     <li class="tag-item border-box">
-                                        <i class="icon fas fa-hashtag"></i>&nbsp;<a href="/tags/Linux/">Linux</a>
+                                        <i class="icon fas fa-hashtag"></i>&nbsp;<a href="/tags/CSAPP/">CSAPP</a>
                                     </li>
                                 
                             </ul>
@@ -476,31 +511,15 @@
                 
                     <div class="post-nav border-box">
                         
-                            <div class="prev-post">
-                                <a class="prev"
-                                   rel="prev"
-                                   href="/2024/10/23/CSAPP-chapter1/"
-                                   title="ICS CSAPP第一章笔记"
-                                >
-                                    <span class="left arrow-icon flex-center">
-                                        <i class="fas fa-chevron-left"></i>
-                                    </span>
-                                    <span class="title flex-center">
-                                        <span class="post-nav-title-item text-ellipsis">ICS CSAPP第一章笔记</span>
-                                        <span class="post-nav-item">Prev posts</span>
-                                    </span>
-                                </a>
-                            </div>
-                        
                         
                             <div class="next-post">
                                 <a class="next"
                                    rel="next"
-                                   href="/2024/10/21/2D-platform-jump/"
-                                   title="2D平台跳跃笔记"
+                                   href="/2024/10/21/ICS-linux-1/"
+                                   title="ICS Linux知识整理(1)"
                                 >
                                     <span class="title flex-center">
-                                        <span class="post-nav-title-item text-ellipsis">2D平台跳跃笔记</span>
+                                        <span class="post-nav-title-item text-ellipsis">ICS Linux知识整理(1)</span>
                                         <span class="post-nav-item">Next posts</span>
                                     </span>
                                     <span class="right arrow-icon flex-center">
@@ -528,7 +547,7 @@
             <div class="pc-post-toc right-toc">
                 <div class="post-toc-wrap border-box">
     <div class="post-toc border-box">
-        <ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-text">概念</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E5%A4%A7%E6%B3%A2%E5%91%BD%E4%BB%A4%E6%AD%A3%E5%9C%A8%E6%9D%A5%E8%A2%AD"><span class="nav-text">一大波命令正在来袭</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%BF%9B%E5%85%A5%E5%AE%B9%E5%99%A8"><span class="nav-text">如何进入容器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ls%E4%B8%8E%E9%95%BF%E5%88%97%E8%A1%A8%E6%A0%BC%E5%BC%8F"><span class="nav-text">ls与长列表格式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C%EF%BC%88%E6%9D%82%EF%BC%89"><span class="nav-text">基本操作（杂）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E6%8F%90%E7%A4%BAcommand-not-found%E6%80%8E%E4%B9%88%E5%8A%9E"><span class="nav-text">执行命令提示command not found怎么办</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%87%8D%E5%AE%9A%E5%90%91%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E6%B5%81"><span class="nav-text">重定向输入输出流</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#awk"><span class="nav-text">awk</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#sed"><span class="nav-text">sed</span></a></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#ICS-CSAPP%E7%AC%AC%E4%B8%80%E7%AB%A0%E7%AC%94%E8%AE%B0"><span class="nav-text">ICS CSAPP第一章笔记</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#From-Source-File-to-Executable-Object-File"><span class="nav-text">From Source File to Executable Object File</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Hardware-organization-of-a-system"><span class="nav-text">Hardware organization of a system</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Running-the-hello-Program"><span class="nav-text">Running the hello Program</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#The-Necessity-of-Cache-Memories-%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98"><span class="nav-text">The Necessity of Cache Memories(高速缓存)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Storage-Devices-Form-a-Hierarchy"><span class="nav-text">Storage Devices Form a Hierarchy</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#The-Operating-System"><span class="nav-text">The Operating System</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Processes-%E8%BF%9B%E7%A8%8B"><span class="nav-text">Processes(进程)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Threads-%E7%BA%BF%E7%A8%8B"><span class="nav-text">Threads(线程)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Virtual-Memory-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98"><span class="nav-text">Virtual Memory(虚拟内存)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Files-%E6%96%87%E4%BB%B6"><span class="nav-text">Files(文件)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Communicate-with-Other-Systems-Using-Networks"><span class="nav-text">Communicate with Other Systems Using Networks</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Amdahl%E2%80%99s-Law"><span class="nav-text">Amdahl’s Law</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Concurrency-and-Parallelism"><span class="nav-text">Concurrency and Parallelism</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Thread-Level-Concurrency"><span class="nav-text">Thread-Level Concurrency</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Instruction-Level-Parallelism"><span class="nav-text">Instruction-Level Parallelism</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Single-Instruction-Multiple-Data-SIMD-Parallelism"><span class="nav-text">Single-Instruction,Multiple-Data(SIMD) Parallelism</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Abstraction"><span class="nav-text">Abstraction</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E6%A6%82%E5%BF%B5-%E7%94%9F%E8%AF%8D"><span class="nav-text">其他概念&#x2F;生词</span></a></li></ol></li></ol>
     </div>
 </div>
 
@@ -718,7 +737,7 @@
             <div class="tablet-post-toc">
                 <div class="post-toc-wrap border-box">
     <div class="post-toc border-box">
-        <ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-text">概念</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E5%A4%A7%E6%B3%A2%E5%91%BD%E4%BB%A4%E6%AD%A3%E5%9C%A8%E6%9D%A5%E8%A2%AD"><span class="nav-text">一大波命令正在来袭</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%BF%9B%E5%85%A5%E5%AE%B9%E5%99%A8"><span class="nav-text">如何进入容器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ls%E4%B8%8E%E9%95%BF%E5%88%97%E8%A1%A8%E6%A0%BC%E5%BC%8F"><span class="nav-text">ls与长列表格式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C%EF%BC%88%E6%9D%82%EF%BC%89"><span class="nav-text">基本操作（杂）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E6%8F%90%E7%A4%BAcommand-not-found%E6%80%8E%E4%B9%88%E5%8A%9E"><span class="nav-text">执行命令提示command not found怎么办</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%87%8D%E5%AE%9A%E5%90%91%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E6%B5%81"><span class="nav-text">重定向输入输出流</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#awk"><span class="nav-text">awk</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#sed"><span class="nav-text">sed</span></a></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#ICS-CSAPP%E7%AC%AC%E4%B8%80%E7%AB%A0%E7%AC%94%E8%AE%B0"><span class="nav-text">ICS CSAPP第一章笔记</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#From-Source-File-to-Executable-Object-File"><span class="nav-text">From Source File to Executable Object File</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Hardware-organization-of-a-system"><span class="nav-text">Hardware organization of a system</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Running-the-hello-Program"><span class="nav-text">Running the hello Program</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#The-Necessity-of-Cache-Memories-%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98"><span class="nav-text">The Necessity of Cache Memories(高速缓存)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Storage-Devices-Form-a-Hierarchy"><span class="nav-text">Storage Devices Form a Hierarchy</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#The-Operating-System"><span class="nav-text">The Operating System</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Processes-%E8%BF%9B%E7%A8%8B"><span class="nav-text">Processes(进程)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Threads-%E7%BA%BF%E7%A8%8B"><span class="nav-text">Threads(线程)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Virtual-Memory-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98"><span class="nav-text">Virtual Memory(虚拟内存)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Files-%E6%96%87%E4%BB%B6"><span class="nav-text">Files(文件)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Communicate-with-Other-Systems-Using-Networks"><span class="nav-text">Communicate with Other Systems Using Networks</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Amdahl%E2%80%99s-Law"><span class="nav-text">Amdahl’s Law</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Concurrency-and-Parallelism"><span class="nav-text">Concurrency and Parallelism</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Thread-Level-Concurrency"><span class="nav-text">Thread-Level Concurrency</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Instruction-Level-Parallelism"><span class="nav-text">Instruction-Level Parallelism</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Single-Instruction-Multiple-Data-SIMD-Parallelism"><span class="nav-text">Single-Instruction,Multiple-Data(SIMD) Parallelism</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Abstraction"><span class="nav-text">Abstraction</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E6%A6%82%E5%BF%B5-%E7%94%9F%E8%AF%8D"><span class="nav-text">其他概念&#x2F;生词</span></a></li></ol></li></ol>
     </div>
 </div>
 
