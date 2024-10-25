@@ -1,9 +1,9 @@
 ---
 title: ICS CSAPP第一章笔记
-date: 2024-10-23 12:52:49
+date: 2024-10-23 12:52:49 +0800
 tags: [ICS, CSAPP]
 categories: [ICS]
-mathjax: false
+math: true
 ---
 
 #### From Source File to Executable Object File
@@ -92,15 +92,19 @@ The network can be viewed as just another I/O device.
 #### Amdahl's Law
 
 A formula that describes the acceleration effect of a component on the entire system.
+
+
 $$
 S = \frac{1}{(1 - \alpha) + \alpha/k}
 $$
 
-$\alpha$ is the fraction of time the component of the system requires.
 
-$k$ is the factor we improved its performance by.
 
-$S$ is the speedup $T_{old}/T_{new}$.
+$$ \alpha $$ is the fraction of time the component of the system requires.
+
+$$ k $$ is the factor we improved its performance by.
+
+$$ S $$ is the speedup $$ T_{old}/T_{new} $$.
 
 Insight:to significantly speed up the entire system,we must improve the speed of a very large fraction of the overall system.
 
