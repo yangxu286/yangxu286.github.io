@@ -1,6 +1,6 @@
 ---
 title: 使用GitHub Pages搭建个人博客的快速教程
-date: 2024-10-25 18:09:30
+date: 2024-10-24 18:09:30
 tags: [Blog, Jekyll, GitHub Pages]
 categories: [Jekyll]
 ---
