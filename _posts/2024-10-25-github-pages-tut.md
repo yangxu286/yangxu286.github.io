@@ -84,7 +84,9 @@ chirpy主题本身支持latex，但默认不加载。使用latex需要注意两�
 
 1.在需要支持latex的博文最前加上`math: true`。
 
-2.注意语法，需要在$符号前后加上一些空格与空行，具体见官方手册：[Writing a New Post | Chirpy](https://chirpy.cotes.page/posts/write-a-new-post/#mathematics)。
+2.注意语法，有一些变动，具体见官方手册：
+
+[Writing a New Post](https://chirpy.cotes.page/posts/write-a-new-post/#mathematics)
 
 
 
