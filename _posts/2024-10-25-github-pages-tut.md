@@ -1,6 +1,6 @@
 ---
 title: 使用GitHub Pages搭建个人博客的快速教程
-date: 2024-10-24 18:09:30
+date: 2024-10-25 18:09:30 +0800
 tags: [Blog, Jekyll, GitHub Pages]
 categories: [Jekyll]
 ---
@@ -75,6 +75,8 @@ git config --global https.proxy http://127.0.0.1:10809
 #### 第七步：添加新文章
 
 将`.md`文件放到_posts文件夹下。注意开头格式，这一点很多博客的md格式都是一样的。
+
+不过我遇到了一个问题，就是必须在date那一栏后面加上时区，如` date: 2024-10-25 18:09:30 +0800`，不然可能会因为未来时间而报错、忽略博文或者在网站上显示的时间错误。不知道是不是chirpy的刚需。
 
 #### 关于latex支持问题
 
