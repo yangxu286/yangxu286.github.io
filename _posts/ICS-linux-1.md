@@ -1,0 +1,120 @@
+---
+title: ICS Linux知识整理(1)
+date: 2024-10-21 13:52:39
+tags: [ICS, Linux]
+categories: [ICS]
+---
+
+注：自用向课堂笔记。
+
+##### 概念
+
+image（镜像）：相当于环境配置数据。
+container（容器）：镜像的实例，一个孤立的系统。
+* image可以通过dockerfile + docker build创建。
+* 创建了一个image后，便可以创建新的container并运行。使用如下指令：
+-`docker build -t <image-tag-name> <dockerfile-path>`
+* 可以用docker start，docker stop，docker rm等命令控制container的运行。
+`docker images` or `docker image list`: 列出你系统里所有的image。
+- `docker run`: 在一个image的基础上运行container。
+- `docker ps`: 列出正在运行的container。
+- `docker stop <container-id-or-name>`: 停止一个container。
+- `docker rm <container-id-or-name>`: 移除某个已停止的container。
+
+#### 一大波命令正在来袭
+##### 如何进入容器
+```
+docker start my-linux
+docker exec -it my-linux /bin/bash
+
+### 建议使用ics用户，而不是root用户
+### 故在Linux Shell里面继续执行如下命令，切换用户身份（从root到ics）
+su - ics
+```
+##### ls与长列表格式
+`ls`：查看目前工作路径下的所有内容。
+具体命令语法：`ls [选项] [目录|文件]`
+若想进一步了解，可使用 `ls --help`查看详情。如：`ls -l`会使用长列表格式进行输出。如下面这种：
+```
+total 8
+-rw-rw-r-- 1 ics ics    0 Oct  8 09:11 bar
+drwxrwxr-x 2 ics ics 4096 Oct  8 09:11 baz
+-rwxrw-r-- 1 ics ics    0 Oct  8 09:22 echo.sh
+-rw-rw-r-- 1 ics ics    6 Oct  8 09:11 foo
+```
+`total 8`：以下所有文件大小总和为8。使用`ls -lh`可以将它输出为人类可读形式：8.0K。
+第一列第一个字母是文件类型。
+
+| 符号 | 类型                      |
+| ---- | ------------------------- |
+| -    | 普通文件                  |
+| d    | 目录文件                  |
+| b    | 块设备文件（block）       |
+| c    | 字符设备文件（character） |
+| l    | 符号链接文件              |
+| p    | 命令管道文件（pipe）      |
+| s    | 套接字文件（socket）      |
+
+后面的九个字母是一系列权限，每三个字母为一组，分别为所有者权限、组用户权限、其他用户权限。r、w、x分别为读、写、执行，有则有，无则为-。
+`chmod`可以修改这个权限。如`chmod ugo+r file1.txt/chmod a+r file1.txt`将file1.txt设为所有人皆可读取。
+第二列到最后一列分别为链接数（或子目录数）、文件的用户所有者、文件的组群所有者、文件的长度（单位是字节，不是磁盘占用量）、最近更新时间、文件名。
+`chown`可以修改文件用户所有者，如`chown -R ics wget.sh`。`-R`（注意大写）选项表示连同子目录中的所有文件，都更改所有者。
+此外，`ls -S`会将文件大小从大到小排序。
+
+##### 基本操作（杂）
+`pwd`：输出绝对工作路径。print working directory
+`cd`：进入你输入的工作路径。change directory
+`~`：家目录，分配给每个用户的个人目录，大概率以用户名命名（不是/home）。
+`.`：当前路径。
+`..`：父路径。
+`/`：根目录。
+`echo`：复读后面的字符串。若加`-e`可开启转义，这时输入`\n`就能换行了。
+`top`：输出linux进程。进入top界面后，按q退出，按h获取帮助。top界面太复杂，这边暂时先不讲。
+`ps`：显示当前进程的状态。其参数同样非常多。
+`cp <source> <destination>`：复制。
+`mv <source> <destination>`：移动和重命名。
+`rm <filename>`：删除文件。
+`rmdir <directory>`：删除空文件夹/路径。
+`mkdir <directory>`：新建路径。
+`touch <file>`：创建空文件。
+`cat`：暂时还不太懂。见[Linux cat 命令 | 菜鸟教程 (runoob.com)](https://www.runoob.com/linux/linux-comm-cat.html)
+`sort`：将文本文件按行排序。`-d`：字典序。`-n`：数字序。`-r`：反序。
+如命令`sort -k 2n xxx.txt`，`-k`表示使用key排序，后面的`2n`定义了key：第二列，数字序。
+`head/tail`：输出最前或最后几行。
+默认为10行，但若加`-n`则可自定义，如输入`head -n 2 xxx.txt`，则会输出2行。
+`nl xxx.text`：带行号地输出。
+
+获取帮助的两种方式：`man <command>`或在命令后面加`--help`或`-h`。
+
+`sudo`：让一个用户暂时获得root权限来做下面的事（不要轻易使用）。
+`|`（pipe）：可以连接命令，让前一个的输出作为后一个的输入。
+`grep`：查找含有某正则表达式的行。
+如`grep -in this *`将在路径下的所有文件中不区别大小写地找含有this的行，且在输出的时候显示行号。
+可以使用`&&`在同一行内切换目录。
+
+##### 执行命令提示command not found怎么办
+自然是找到命令所在的包。许多命令所在的包名和命令名是一样的。对于不一样的，可以上这个网站查询：[command-not-found.com](https://command-not-found.com/)
+找到了怎么办？
+`apt [options] [command] [package ...]`
+安装包：`sudo apt install <package_name>`
+具体查看：[Linux apt 命令 | 菜鸟教程 (runoob.com)](https://www.runoob.com/linux/linux-comm-apt.html)
+
+##### 重定向输入输出流
+`command < file.txt`：指令的输入将从file.txt读取。
+`command > file.txt`：指令的输出将输出到file.txt并覆盖原有内容。
+`command >> file.txt`：指令将追加到file.txt后面。
+`command 2> file.txt`：将标准错误输出到file.txt，标准输出不影响。
+`command &> file.txt`：将命令的标准输出和标准错误同时重定向到 file.txt。这里的 `&>` 是一个语法糖，等同于 `command > file.txt 2>&1`。
+
+##### awk
+`awk` 是一个强大的文本分析工具，可在后方执行简单的脚本。
+
+##### sed
+sed命令利用脚本来处理文本文件。不过，这些处理并不会实际更改文件，而是把改后的内容输出到终端。若要修改文件，加上`-i`。
+首先，在sed后面输入的指令部分（不是选项，不是`-e` `-f`之类的）一定是用单引号括起来的。
+`sed 's/old/new/g' file`：查找到所有的old并替换成new。
+`sed '3 s/old/new/' file`：查找到第3行第一个old并替换成new。
+`sed '3d' file`：删除第3行。
+`sed -n '3p' file`：输出第3行。`-n`表示不输出处理后的结果，此处如果不去掉会输出整个文件，且把第3行输出2次。
+`sed '2i\This is a new line' file`：在第2行前面加上这一行。
+`sed '2a\This is a new line' file`：在第2行后面加上这一行。
