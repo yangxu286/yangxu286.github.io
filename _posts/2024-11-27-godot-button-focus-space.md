@@ -10,3 +10,7 @@ categories: [Godot]
 解决方法：button.set_focus_mode(0)，禁止按钮获取焦点。这不影响点按功能，只是禁止按钮捕获键盘事件。
 
 测试阶段可将按钮的各种颜色（Focus、Hover、Hover Pressed等）设置得明显一些，便于debug。
+
+官方文档相关内容：
+
+[Control — Godot Engine (4.x) 简体中文文档](https://docs.godotengine.org/zh-cn/4.x/classes/class_control.html#enum-control-focusmode)
