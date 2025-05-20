@@ -1,6 +1,6 @@
 ---
 title: Leetcode Day02：二分初探
-date: 2025-05-19 12:05:00 +0800
+date: 2025-05-20 17:22:00 +0800
 tags: [算法, Leetcode, 二分]
 categories: [算法]
 ---
